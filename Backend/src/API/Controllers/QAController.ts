@@ -25,7 +25,7 @@ export class QAController extends BaseController {
         try {
             const answer = await this.askQuestionService.AskQuestion(data.data.questionText, data.data.fileSearchStoreName);
 
-            return this.ok<AnswerModel>(res, answer);
+            return this.ok<AnswerModel>(res, answer, "Question answered successfully.");
         } catch (error) {
             console.error("Error in ask endpoint:", error);
             return this.internalError<AnswerModel>(res, "An error occurred while processing your request.", new AnswerModel("", []));
