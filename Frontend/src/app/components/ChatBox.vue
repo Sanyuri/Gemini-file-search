@@ -40,6 +40,7 @@ const send = async () => {
       timestamp: Date.now()
     }
 
+    question.value = "";
     const response = await router.post("qa/ask", data);
 
     const botMessage = {
@@ -50,8 +51,6 @@ const send = async () => {
     messages.value.push(botMessage);
   } catch (error) {
     console.error("Error sending message:", error);
-  } finally {
-    question.value = "";
   }
 };
 </script>
