@@ -25,7 +25,7 @@ export class FileController extends BaseController {
 
         try {
             const fileStore = await this.fileStoreService.CreateStore(data.data.storeName);
-            return this.ok<string>(res, `File search store: ${fileStore.name} created successfully.`);
+            return this.ok<string>(res, fileStore.name, `File search store ${fileStore.name} created successfully.`);
         } catch (error) {
             console.error("Error in createFileSearchStore endpoint:", error);
             return this.internalError<string>(res, `An error occurred while creating the file search store ${req.body.storeName}.`);
@@ -48,7 +48,7 @@ export class FileController extends BaseController {
 
         try {
             await this.fileStoreService.DeleteStore(data.data.storeName);
-            return this.ok<string>(res, "File search store deleted successfully.");
+            return this.ok<string>(res, null, `File search store ${data.data.storeName} deleted successfully.`);
         } catch (error) {
             console.error("Error in deleteFileSearchStore endpoint:", error);
             return this.internalError<string>(res, `An error occurred while deleting the file search store ${data.data.storeName}.`);
@@ -85,7 +85,8 @@ export class FileController extends BaseController {
 
         try {
             const result = await this.fileStoreService.UploadFilesToStore(multerFiles, req.body.storeName);
-            return this.ok<string>(res, `Files ${result.fileNames.join(", ")} uploaded successfully.`);
+            const fileNames = result.fileNames.join(", ");
+            return this.ok<string>(res, fileNames, `Files ${fileNames} uploaded successfully.`);
         } catch (error) {
             console.error("Error in uploadFilesToStore endpoint:", error);
             return this.internalError<string>(res, `An error occurred while uploading files to the store ${req.body.storeName}.`);
@@ -108,7 +109,7 @@ export class FileController extends BaseController {
 
         try {
             await this.fileStoreService.DeleteFile(data.data.fileName, data.data.fileSearchStoreName);
-            return this.ok<string>(res, "File deleted successfully.");
+            return this.ok<string>(res, null, "File deleted successfully.");
         } catch (error) {
             console.error("Error in deleteFile endpoint:", error);
             return this.internalError<string>(res, `An error occurred while deleting the file ${data.data.fileName}.`);

@@ -3,7 +3,7 @@ import { ApiResponse } from "../../Application/Commons/Models/Apis/ApiResponse";
 
 export abstract class BaseController {
 
-    protected ok<T>(res: Response, data: T, message: string = "Success") {
+    protected ok<T>(res: Response, data: T | null, message: string) {
         return res.status(200).json(new ApiResponse(200, message, data));
     }
 
