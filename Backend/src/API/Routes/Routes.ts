@@ -47,6 +47,26 @@ export const createFileStoreRouter = (fileStoreService: IFileStoreService): Rout
         '/delete-file',
         fileController.deleteFile.bind(fileController) as ControllerFunction
     );
-    
+
+    router.get(
+        '/store-info',
+        fileController.getFileSearchStoreInfo.bind(fileController) as ControllerFunction
+    );
+
+    router.get(
+        '/list-stores',
+        fileController.listFileSearchStores.bind(fileController) as ControllerFunction
+    );
+
+    router.get(
+        '/list-files',
+        fileController.listFilesInStore.bind(fileController) as ControllerFunction
+    );
+
+    router.get(
+        '/file-info',
+        fileController.getFileInfo.bind(fileController) as ControllerFunction
+    );
+
     return router;
 };

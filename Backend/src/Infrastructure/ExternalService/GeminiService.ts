@@ -1,6 +1,6 @@
 import { IGeminiRepository } from "./IGeminiService";
 import { GeminiResponse } from "../Models/GeminiResponse";
-import { GoogleGenAI, GroundingChunk, Operations, Pager } from '@google/genai';
+import { FileSearchStore, GoogleGenAI, GroundingChunk, Pager, Document } from '@google/genai';
 
 export class GeminiRepository implements IGeminiRepository {
     private ai: GoogleGenAI;
@@ -22,7 +22,7 @@ export class GeminiRepository implements IGeminiRepository {
             config: {
                 tools: [{
                     fileSearch: {
-                        fileSearchStoreNames: [`fileSearchStores/${fileSearchStoreName}`],
+                        fileSearchStoreNames: [`${fileSearchStoreName}`],
                     },
                 }],
             },
@@ -31,10 +31,10 @@ export class GeminiRepository implements IGeminiRepository {
         return {
             text: response.text ?? "No response text received.",
             sourceUrls: (() => {
-            const chunks: GroundingChunk[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
-            const titles = chunks.map(chunk => chunk.retrievedContext?.title ?? 'N/A');
-            // preserve order while removing duplicates
-            return Array.from(new Set(titles));
+                const chunks: GroundingChunk[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+                const titles = chunks.map(chunk => chunk.retrievedContext?.title ?? 'N/A');
+                // preserve order while removing duplicates
+                return Array.from(new Set(titles));
             })(),
         };
     }
@@ -65,18 +65,54 @@ export class GeminiRepository implements IGeminiRepository {
     /**
      * Deletes a file from a specified file search store in the Gemini API.
      * @param fileName - The name of the file to be deleted.
-     * @param fileSearchStoreName - The name of the file search store from which to delete the file.
      */
-    async deleteFile(fileName: string, fileSearchStoreName: string): Promise<void> {
+    async deleteFile(fileName: string): Promise<void> {
         try {
             await this.ai.fileSearchStores.documents.delete({
-                 name: `fileSearchStores/${fileSearchStoreName}/documents/${fileName}`,
-                 config:{
+                name: `${fileName}`,
+                config: {
                     force: true
-                 }
-                });
+                }
+            });
         } catch (error) {
             throw new Error(`Failed to delete file from Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
+    }
+
+    /**
+     * Retrieves information about a specified file from a file search store in the Gemini API.
+     * @param fileName - The name of the file to retrieve information for.
+     * @returns An object containing the file information.
+     */
+    async getFileInfo(fileName: string): Promise<Document> {
+        try {
+            const file = await this.ai.fileSearchStores.documents.get({
+                name: `${fileName}`
+            });
+
+            return file;
+
+        } catch (error) {
+            throw new Error(`Failed to get file info from Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
+    }
+
+    /**
+     * Get all files in a file search store
+     * @param fileSearchStoreName - The name of the file search store.
+     * @returns A promise that resolves to a Pager object containing Document objects.
+     */
+    async listFilesInStore(fileSearchStoreName: string, pageSize: number, pageToken?: string): Promise<Pager<Document>> {
+        try {
+            return await this.ai.fileSearchStores.documents.list({
+                parent: `${fileSearchStoreName}`,
+                config: {
+                    pageSize: pageSize,
+                    pageToken: pageToken
+                }
+            });
+        } catch (error) {
+            throw new Error(`Failed to list files in store from Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
     //#endregion
@@ -87,14 +123,14 @@ export class GeminiRepository implements IGeminiRepository {
      * @param displayName - The display name for the new file search store.
      * @returns An object containing the name of the created file search store.
      */
-    async createStore(displayName: string): Promise<{ name: string; }> {
-        const fileSearchStore = await this.ai.fileSearchStores.create({
-            config: { displayName: displayName }
-        });
-        if (!fileSearchStore.name) {
-            throw new Error("File search store creation failed: Gemini API did not return a store name.");
+    async createStore(displayName: string): Promise<FileSearchStore> {
+        try {
+            return await this.ai.fileSearchStores.create({
+                config: { displayName: displayName }
+            });
+        }catch (error) {
+            throw new Error(`Failed to create file search store in Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
-        return { name: fileSearchStore.name.split('/').pop() ?? '' };
     }
 
     /**
@@ -109,7 +145,7 @@ export class GeminiRepository implements IGeminiRepository {
         }
 
         let response = await this.ai.fileSearchStores.uploadToFileSearchStore({
-            fileSearchStoreName: `fileSearchStores/${fileSearchStoreName}`,
+            fileSearchStoreName: `${fileSearchStoreName}`,
             file: `uploads/${fileName}`,
             config: {
                 displayName: fileName,
@@ -140,15 +176,47 @@ export class GeminiRepository implements IGeminiRepository {
      */
     async deleteStore(fileSearchStoreName: string): Promise<void> {
         try {
-            await this.ai.fileSearchStores.delete({ 
-                name: `fileSearchStores/${fileSearchStoreName}`,
-                config:{
+            await this.ai.fileSearchStores.delete({
+                name: `${fileSearchStoreName}`,
+                config: {
                     force: true
-                 }
+                }
             });
         } catch (error) {
             throw new Error(`Failed to delete file search store from Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
+
+    /**
+     * Retrieves information about a specified file search store from the Gemini API.
+     * @param fileSearchStoreName - The name of the file search store to retrieve information for.
+     * @returns A FileSearchStore object containing the store information.
+     */
+    async getStoreInfo(fileSearchStoreName: string): Promise<FileSearchStore> {
+        try {
+            return await this.ai.fileSearchStores.get({ name: `${fileSearchStoreName}` });
+        } catch (error) {
+            throw new Error(`Failed to get file search store info from Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
+    }
+
+    /**
+     * Lists all file search stores from the Gemini API.
+     * @returns An array of FileSearchStore objects.
+     */
+    async listStores(pageSize?: number, pageToken?: string): Promise<Pager<FileSearchStore>> {
+        try {
+            return await this.ai.fileSearchStores.list(
+                {
+                    config: {
+                        pageSize, pageToken
+                    }
+                }
+            );
+        } catch (error) {
+            throw new Error(`Failed to list file search stores from Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
+    }
+
     //#endregion
 }
