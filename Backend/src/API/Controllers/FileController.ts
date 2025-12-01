@@ -4,9 +4,10 @@ import { IFileStoreService } from "../../Application/Commons/IServices/IFileStor
 import { BaseController } from "./BaseController";
 import { MulterFile } from "../../Application/Commons/Models/MulterFiles/MulterFile";
 import { ApiRequest } from "../../Application/Commons/Models/Apis/ApiRequest";
-import { DeleteFileModel } from "../../Application/Commons/Models/FileSearchStores/DeleteFileModel";
+import { FileModel } from "../../Application/Commons/Models/FileSearchStores/FileModel";
 import { FileSearchStorePagerModel } from "../../Application/Commons/Models/FileSearchStores/FileSearchStorePagerModal";
 import { FilePagerModel } from "../../Application/Commons/Models/FileSearchStores/FilePagerModel";
+import { FileSearchStore } from "@google/genai";
 
 export class FileController extends BaseController {
     constructor(private fileStoreService: IFileStoreService) { super(); }
@@ -27,7 +28,7 @@ export class FileController extends BaseController {
 
         try {
             const fileStore = await this.fileStoreService.CreateStore(data.data.storeName);
-            return this.ok<string>(res, fileStore.name, `File search store ${fileStore.name} created successfully.`);
+            return this.ok<FileSearchStore>(res, fileStore, `File search store ${fileStore.displayName} created successfully.`);
         } catch (error) {
             console.error("Error in createFileSearchStore endpoint:", error);
             return this.internalError<string>(res, `An error occurred while creating the file search store ${req.body.storeName}.`);
@@ -103,14 +104,14 @@ export class FileController extends BaseController {
      */
     async deleteFile(req: Request, res: Response) {
 
-        const data: ApiRequest<DeleteFileModel> = req.body;
+        const data: ApiRequest<FileModel> = req.body;
 
-        if (!data.data.fileName || !data.data.fileSearchStoreName) {
-            return this.badRequest<string>(res, "fileName and fileSearchStoreName are required.");
+        if (!data.data.fileName) {
+            return this.badRequest<string>(res, "fileName is required.");
         }
 
         try {
-            await this.fileStoreService.DeleteFile(data.data.fileName, data.data.fileSearchStoreName);
+            await this.fileStoreService.DeleteFile(data.data.fileName);
             return this.ok<string>(res, null, "File deleted successfully.");
         } catch (error) {
             console.error("Error in deleteFile endpoint:", error);
@@ -164,13 +165,13 @@ export class FileController extends BaseController {
      * @returns A success message or an error.
      */
     async getFileInfo(req: Request, res: Response) {
-        const data: ApiRequest<DeleteFileModel> = req.body;
+        const data: ApiRequest<FileModel> = req.body;
 
-        if (!data.data.fileName || !data.data.fileSearchStoreName) {
-            return this.badRequest<string>(res, "fileName and fileSearchStoreName are required.");
+        if (!data.data.fileName) {
+            return this.badRequest<string>(res, "fileName is required.");
         }
         try {
-            const fileInfo = await this.fileStoreService.GetFileInfo(data.data.fileName, data.data.fileSearchStoreName);
+            const fileInfo = await this.fileStoreService.GetFileInfo(data.data.fileName);
             return this.ok<any>(res, fileInfo, `File info for ${fileInfo.displayName} retrieved successfully.`);
         }
         catch (error) {

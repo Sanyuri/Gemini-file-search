@@ -8,11 +8,11 @@ export interface IGeminiRepository {
     getStoreInfo(storeName: string): Promise<FileSearchStore>;
 
     uploadFile(filePath: string, mimeType: string, fileName: string): Promise<{ name: string }>;
-    deleteFile(fileName: string, fileSearchStoreName: string): Promise<void>;
-    getFileInfo(fileName: string, fileSearchStoreName: string): Promise<Document>;
+    deleteFile(fileName: string): Promise<void>;
+    getFileInfo(fileName: string): Promise<Document>;
     listFilesInStore(fileSearchStoreName: string, pageSize: number, pageToken?: string): Promise<Pager<Document>>;
 
-    createStore(displayName: string): Promise<{ name: string }>;
+    createStore(displayName: string): Promise<FileSearchStore>;
     addFileToStore(fileName: string, fileSearchStoreName: string): Promise<{ name: string }>;
     deleteStore(fileSearchStoreName: string): Promise<void>;
 }

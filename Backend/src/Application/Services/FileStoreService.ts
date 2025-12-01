@@ -13,7 +13,7 @@ export class FileStoreService implements IFileStoreService {
      * @param storeName - The name of the store to create.
      * @returns An object containing the name of the created store.
      */
-    async CreateStore(storeName: string): Promise<{ name: string; }> {
+    async CreateStore(storeName: string): Promise<FileSearchStoreGemini> {
         return await this.GeminiRepository.createStore(storeName);
     }
 
@@ -71,11 +71,10 @@ export class FileStoreService implements IFileStoreService {
     /**
      * Delete a file from a file search store
      * @param fileName - The name of the file to delete.
-     * @param fileSearchStoreName - The name of the file search store.
      * @returns A promise that resolves when the file is deleted.
      */
-    async DeleteFile(fileName: string, fileSearchStoreName: string): Promise<void> {
-        await this.GeminiRepository.deleteFile(fileName, fileSearchStoreName);
+    async DeleteFile(fileName: string): Promise<void> {
+        await this.GeminiRepository.deleteFile(fileName);
     }
 
     /**
@@ -90,11 +89,10 @@ export class FileStoreService implements IFileStoreService {
     /**
      * Get information about a file in a file search store
      * @param fileName - The name of the file to retrieve information for.
-     * @param fileSearchStoreName - The name of the file search store containing the file.
      * @returns A promise that resolves to a Document object containing file information.
      */
-    async GetFileInfo(fileName: string, fileSearchStoreName: string): Promise<FileSearchStoreGemini> {
-        return await this.GeminiRepository.getFileInfo(fileName, fileSearchStoreName);
+    async GetFileInfo(fileName: string): Promise<FileSearchStoreGemini> {
+        return await this.GeminiRepository.getFileInfo(fileName);
     }
 
     /**
