@@ -1,11 +1,13 @@
 import { IGeminiRepository } from "../../Infrastructure/ExternalService/IGeminiService";
 import { FileSearchStore } from "../../Infrastructure/Models/FileSearchStore";
+import { FileSearchStore as FileSearchStoreGemini, Pager } from "@google/genai"
 import { IFileStoreService } from "../Commons/IServices/IFileStoreService";
 import { MulterFile } from "../Commons/Models/MulterFiles/MulterFile";
 
 export class FileStoreService implements IFileStoreService {
     constructor(private readonly GeminiRepository: IGeminiRepository) { }
 
+    //#region File Search Store Methods
     /**
      * Create a new file search store
      * @param storeName - The name of the store to create.
@@ -13,6 +15,16 @@ export class FileStoreService implements IFileStoreService {
      */
     async CreateStore(storeName: string): Promise<{ name: string; }> {
         return await this.GeminiRepository.createStore(storeName);
+    }
+
+    /**
+    * List all file search stores
+    * @param pageSize - The number of stores to return per page.
+    * @param pageToken - The token for the page to retrieve.
+    * @returns A promise that resolves to a Pager object containing FileSearchStore objects.
+    */
+    async ListStores(pageSize: number | undefined, pageToken: string | undefined): Promise<Pager<FileSearchStoreGemini>> {
+        return await this.GeminiRepository.listStores(pageSize, pageToken);
     }
 
     /**
@@ -53,7 +65,9 @@ export class FileStoreService implements IFileStoreService {
     async DeleteStore(storeName: string): Promise<void> {
         await this.GeminiRepository.deleteStore(storeName);
     }
+    //#endregion
 
+    //#region File Methods
     /**
      * Delete a file from a file search store
      * @param fileName - The name of the file to delete.
@@ -63,4 +77,35 @@ export class FileStoreService implements IFileStoreService {
     async DeleteFile(fileName: string, fileSearchStoreName: string): Promise<void> {
         await this.GeminiRepository.deleteFile(fileName, fileSearchStoreName);
     }
+
+    /**
+     * Get information about a file search store
+     * @param storeName - The name of the store to retrieve information for.
+     * @returns A promise that resolves to a FileSearchStore object containing store information.
+     */
+    async GetStoreInfo(storeName: string): Promise<FileSearchStoreGemini> {
+        return await this.GeminiRepository.getStoreInfo(storeName);
+    }
+
+    /**
+     * Get information about a file in a file search store
+     * @param fileName - The name of the file to retrieve information for.
+     * @param fileSearchStoreName - The name of the file search store containing the file.
+     * @returns A promise that resolves to a Document object containing file information.
+     */
+    async GetFileInfo(fileName: string, fileSearchStoreName: string): Promise<FileSearchStoreGemini> {
+        return await this.GeminiRepository.getFileInfo(fileName, fileSearchStoreName);
+    }
+
+    /**
+     * Get all files in a file search store
+     * @param fileSearchStoreName - The name of the file search store.
+     * @param pageSize - The number of files to return per page.
+     * @param pageToken - The token for the page to retrieve.
+     * @returns A promise that resolves to a Pager object containing Document objects.
+     */
+    async ListFilesInStore(fileSearchStoreName: string, pageSize: number, pageToken?: string): Promise<Pager<FileSearchStoreGemini>> {
+        return await this.GeminiRepository.listFilesInStore(fileSearchStoreName, pageSize, pageToken);
+    }
+    //#endregion
 }

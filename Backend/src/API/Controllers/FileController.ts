@@ -5,6 +5,8 @@ import { BaseController } from "./BaseController";
 import { MulterFile } from "../../Application/Commons/Models/MulterFiles/MulterFile";
 import { ApiRequest } from "../../Application/Commons/Models/Apis/ApiRequest";
 import { DeleteFileModel } from "../../Application/Commons/Models/FileSearchStores/DeleteFileModel";
+import { FileSearchStorePagerModel } from "../../Application/Commons/Models/FileSearchStores/FileSearchStorePagerModal";
+import { FilePagerModel } from "../../Application/Commons/Models/FileSearchStores/FilePagerModel";
 
 export class FileController extends BaseController {
     constructor(private fileStoreService: IFileStoreService) { super(); }
@@ -113,6 +115,87 @@ export class FileController extends BaseController {
         } catch (error) {
             console.error("Error in deleteFile endpoint:", error);
             return this.internalError<string>(res, `An error occurred while deleting the file ${data.data.fileName}.`);
+        }
+    }
+
+    /**
+     * Get information about a file search store
+     * @param req - The request object containing the store name.
+     * @param res - The response object to send the result.
+     * @returns A success message or an error.
+     */
+    async getFileSearchStoreInfo(req: Request, res: Response) {
+        const data: ApiRequest<FileSearchStoreModel> = req.body;
+
+        if (!data.data.storeName) {
+            return this.badRequest<FileSearchStoreModel>(res, "storeName is required.");
+        }
+
+        try {
+            const storeInfo = await this.fileStoreService.GetStoreInfo(data.data.storeName);
+            return this.ok<any>(res, storeInfo, `File search store info for ${data.data.storeName} retrieved successfully.`);
+        } catch (error) {
+            console.error("Error in getFileSearchStoreInfo endpoint:", error);
+            return this.internalError<string>(res, `An error occurred while retrieving info for the file search store ${data.data.storeName}.`);
+        }
+    }
+
+    /**
+     * List all file search stores
+     * @param req - The request object.
+     * @param res - The response object to send the result.
+     * @returns A list of file search stores or an error.
+     */
+    async listFileSearchStores(req: Request, res: Response) {
+        const body: ApiRequest<FileSearchStorePagerModel> = req.body;
+        try {
+            const stores = await this.fileStoreService.ListStores(body.data.pageSize, body.data.pageToken);
+            return this.ok<any>(res, stores, "File search stores retrieved successfully.");
+        } catch (error) {
+            console.error("Error in listFileSearchStores endpoint:", error);
+            return this.internalError<string>(res, "An error occurred while listing the file search stores.");
+        }
+    }
+
+    /**
+     * Get information about a file in a file search store
+     * @param req - The request object containing the file name and store name.
+     * @param res - The response object to send the result.
+     * @returns A success message or an error.
+     */
+    async getFileInfo(req: Request, res: Response) {
+        const data: ApiRequest<DeleteFileModel> = req.body;
+
+        if (!data.data.fileName || !data.data.fileSearchStoreName) {
+            return this.badRequest<string>(res, "fileName and fileSearchStoreName are required.");
+        }
+        try {
+            const fileInfo = await this.fileStoreService.GetFileInfo(data.data.fileName, data.data.fileSearchStoreName);
+            return this.ok<any>(res, fileInfo, `File info for ${fileInfo.displayName} retrieved successfully.`);
+        }
+        catch (error) {
+            console.error("Error in getFileInfo endpoint:", error);
+            return this.internalError<string>(res, `An error occurred while retrieving info for the file ${data.data.fileName}.`);
+        }
+    }
+
+    /**
+     * Get all files in a file search store
+     * @param req - The request object containing the store name, page size, and page token.
+     * @param res - The response object to send the result.
+     * @return A list of files or an error.
+     */
+    async listFilesInStore(req: Request, res: Response) {
+        const body: ApiRequest<FilePagerModel> = req.body;
+        if (!body.data.storeName) {
+            return this.badRequest<string>(res, "storeName is required.");
+        }
+        try {
+            const files = await this.fileStoreService.ListFilesInStore(body.data.storeName, body.data.pageSize, body.data.pageToken);
+            return this.ok<any>(res, files, `Files in store ${body.data.storeName} retrieved successfully.`);
+        } catch (error) {
+            console.error("Error in listFilesInStore endpoint:", error);
+            return this.internalError<string>(res, `An error occurred while listing files in the store ${body.data.storeName}.`);
         }
     }
 }
