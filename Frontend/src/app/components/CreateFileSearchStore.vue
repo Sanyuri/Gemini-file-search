@@ -18,6 +18,7 @@
 import { ref } from 'vue'
 import router from '@/app/router'
 import type { ApiResponse } from '@/domain/interfaces/apiResponse'
+import type { FileSearchStore } from '@/domain/entities/fileSearchStore'
 
 const modal = ref(false)
 
@@ -36,7 +37,7 @@ const onSubmit = async (e: Event) => {
     const response = await router.post('/file-store/create-store', data)
 
     if(response.status === 200){
-      const apiResponse = response.data as ApiResponse<string>
+      const apiResponse = response.data as ApiResponse<FileSearchStore>
       if (apiResponse.data) {
         const existingStores = document.cookie
           .split('; ')
@@ -44,7 +45,7 @@ const onSubmit = async (e: Event) => {
           .map(cookie => cookie.replace('fileSearchStores=', ''))
           .flatMap(cookieValue => cookieValue ? cookieValue.split(',') : [])
       
-        existingStores.push(apiResponse.data)
+        existingStores.push(apiResponse.data.name)
         
         document.cookie = `fileSearchStores=${existingStores.join(',')}`
       }
