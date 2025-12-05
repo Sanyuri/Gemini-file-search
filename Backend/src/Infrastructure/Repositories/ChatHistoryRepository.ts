@@ -3,8 +3,8 @@ import { ChatHistory } from "../../Domain/Entities/ChatHistory";
 
 export class ChatHistoryRepository {
     /**
-     * Adds a new question to the database.
-     * @param question 
+     * Adds a new chat history to the database.
+     * @param chatHistory 
      * @returns 
      */
     async save(chatHistory: ChatHistory): Promise<ChatHistory> {
