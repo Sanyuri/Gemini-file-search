@@ -1,0 +1,14 @@
+services:
+  db_data:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: Sanyuri
+      POSTGRES_PASSWORD: Sanyuri1805
+      POSTGRES_DB: chatbotDatabase
+    volumes:
+      - db_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+volumes:
+  db_data:
+    driver: local

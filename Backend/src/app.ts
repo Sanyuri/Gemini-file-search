@@ -1,9 +1,12 @@
 import cors from 'cors';
 import express, { Application } from "express";
-import { GeminiRepository } from "./Infrastructure/ExternalService/GeminiService";
+import { GeminiRepository } from "./Infrastructure/ExternalServices/GeminiService";
 import { AskQuestionService } from "./Application/Services/AskQuestionService";
 import { createFileStoreRouter, createQaRouter } from "./API/Routes/Routes";
 import { FileStoreService } from "./Application/Services/FileStoreService";
+import { ChatHistoryRepository } from './Infrastructure/Repositories/ChatHistoryRepository';
+import { UserRepository } from './Infrastructure/Repositories/UserRepository';
+import { SessionChatRepository } from './Infrastructure/Repositories/SessionChatReoisitory';
 
 const geminiApiKey = process.env.GEMINI_API_KEY || "";
 if (!geminiApiKey) {
@@ -25,8 +28,11 @@ export const createApp = () => {
         credentials: true,
     }));
 
+    const userRepository = new UserRepository();
+    const sessionChatRepository = new SessionChatRepository();
     const geminiRepository = new GeminiRepository(geminiApiKey);
-    const qaService = new AskQuestionService(geminiRepository);
+    const chatHistoryRepository = new ChatHistoryRepository();
+    const qaService = new AskQuestionService(userRepository, geminiRepository, chatHistoryRepository, sessionChatRepository);
     const fileStoreService = new FileStoreService(geminiRepository);
     const qaRouter = createQaRouter(qaService);
     const fileStoreRouter = createFileStoreRouter(fileStoreService);
