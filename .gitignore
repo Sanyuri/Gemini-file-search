@@ -137,3 +137,6 @@ dist
 
 #uploads folder
 uploads/
+
+#prisma folder
+**/generated

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { IAskQuestionService } from '../../Application/Commons/IServices/IAskQuestionService';
 import { AskModel } from '../../Application/Commons/Models/QAModels/AskModel';
-import { AnswerModel } from '../../Application/Commons/Models/QAModels/AnswerModel';
 import { BaseController } from './BaseController';
 import { ApiRequest } from '../../Application/Commons/Models/Apis/ApiRequest';
+import { ChatHistoryMapper } from '../../Application/Commons/Mappers/ChatHistoryMapper';
 
 export class QAController extends BaseController {
     constructor(private askQuestionService: IAskQuestionService) { super(); }
@@ -19,16 +19,16 @@ export class QAController extends BaseController {
         const data: ApiRequest<AskModel> = req.body;
 
         if (!data.data.questionText || !data.data.fileSearchStoreName) {
-            return this.badRequest<AnswerModel>(res, "questionText and fileSearchStoreName are required.");
+            return this.badRequest<ReturnType<typeof ChatHistoryMapper.toDTO>>(res, "questionText and fileSearchStoreName are required.");
         }
 
         try {
-            const answer = await this.askQuestionService.AskQuestion(data.data.questionText, data.data.fileSearchStoreName);
+            const answer = await this.askQuestionService.AskQuestion(data.data);
 
-            return this.ok<AnswerModel>(res, answer, "Question answered successfully.");
+            return this.ok<ReturnType<typeof ChatHistoryMapper.toDTO>>(res, answer, "Question answered successfully.");
         } catch (error) {
             console.error("Error in ask endpoint:", error);
-            return this.internalError<AnswerModel>(res, "An error occurred while processing your request.", new AnswerModel("", []));
+            return this.internalError<Error>(res, "An error occurred while processing your request.", error as Error);
         }
     }
 }

@@ -1,4 +1,4 @@
-import { IGeminiRepository } from "../../Infrastructure/ExternalService/IGeminiService";
+import { IGeminiRepository } from "../../Infrastructure/ExternalServices/IGeminiService";
 import { FileSearchStore } from "../../Infrastructure/Models/FileSearchStore";
 import { FileSearchStore as FileSearchStoreGemini, Pager } from "@google/genai"
 import { IFileStoreService } from "../Commons/IServices/IFileStoreService";

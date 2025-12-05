@@ -1,9 +1,13 @@
 export class AskModel {
-    public questionText: string;
-    public fileSearchStoreName: string;
+    questionText: string;
+    fileSearchStoreName: string;
+    sessionChatId?: string;
+    userId?: string;
 
-    constructor(questionText: string, fileSearchStoreName: string) {
+    constructor(questionText: string, fileSearchStoreName: string, sessionChatId?: string, userId?: string) {
         this.questionText = questionText;
         this.fileSearchStoreName = fileSearchStoreName;
+        this.sessionChatId = sessionChatId;
+        this.userId = userId;
     }
 }

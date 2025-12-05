@@ -1,5 +1,6 @@
-import { Answer } from "../../../Domain/Entities/Answer";
+import { ChatHistoryMapper } from "../Mappers/ChatHistoryMapper";
+import { AskModel } from "../Models/QAModels/AskModel";
 
 export interface IAskQuestionService {
-    AskQuestion(questionText: string, fileSearchStoreName: string): Promise<Answer>;
+    AskQuestion(askModel: AskModel): Promise<ReturnType<typeof ChatHistoryMapper.toDTO>>;
 }
