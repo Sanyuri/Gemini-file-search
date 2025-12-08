@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { BaseEntity } from "./BaseEntity";
 import { SessionChat } from "./SessionChat";
+import { FileSearchStore } from "./FileSearchStore";
 
 export class User extends BaseEntity<string> {
     username: string;
@@ -12,6 +13,8 @@ export class User extends BaseEntity<string> {
     isActive: boolean;
 
     sessionChats?: SessionChat[];
+
+    fileSearchStores?: FileSearchStore[];
 
     constructor(username: string, email: string, password: string, createdBy: string) {
         super(uuidv4(), new Date(), createdBy, false);

@@ -5,10 +5,32 @@ import { QAController } from '../Controllers/QAController';
 import { IFileStoreService } from '../../Application/Commons/IServices/IFileStoreService';
 import { FileController } from '../Controllers/FileController';
 import { fileUploadMiddleware } from '../Middlewares/MulterMiddleware';
+import { authenticateJWT } from '../Middlewares/JwtMiddleware';
+import { IUserService } from '../../Application/Commons/IServices/IUserService';
+import { UserController } from '../Controllers/UserController';
 
 type ControllerFunction = (req: any, res: any) => Promise<any>;
-const upload = multer({ dest: 'uploads/' });
 
+// User Router
+export const createUserRouter = (userService: IUserService): Router => {
+    const router = Router();
+
+    const userController = new UserController(userService);
+
+    router.post(
+        '/login',
+        userController.login.bind(userController) as ControllerFunction
+    );
+
+    router.post(
+        '/register',
+        userController.register.bind(userController) as ControllerFunction
+    );
+
+    return router;
+}
+
+// QA Router
 export const createQaRouter = (askQuestionService: IAskQuestionService): Router => {
     const router = Router();
 
@@ -18,10 +40,10 @@ export const createQaRouter = (askQuestionService: IAskQuestionService): Router 
         '/ask',
         qaController.ask.bind(qaController) as ControllerFunction
     );
-
     return router;
 };
 
+// File Store Router
 export const createFileStoreRouter = (fileStoreService: IFileStoreService): Router => {
     const router = Router();
 
@@ -67,6 +89,5 @@ export const createFileStoreRouter = (fileStoreService: IFileStoreService): Rout
         '/file-info',
         fileController.getFileInfo.bind(fileController) as ControllerFunction
     );
-
     return router;
 };

@@ -2,11 +2,13 @@ import cors from 'cors';
 import express, { Application } from "express";
 import { GeminiRepository } from "./Infrastructure/ExternalServices/GeminiService";
 import { AskQuestionService } from "./Application/Services/AskQuestionService";
-import { createFileStoreRouter, createQaRouter } from "./API/Routes/Routes";
+import { createFileStoreRouter, createQaRouter, createUserRouter } from "./API/Routes/Routes";
 import { FileStoreService } from "./Application/Services/FileStoreService";
 import { ChatHistoryRepository } from './Infrastructure/Repositories/ChatHistoryRepository';
 import { UserRepository } from './Infrastructure/Repositories/UserRepository';
 import { SessionChatRepository } from './Infrastructure/Repositories/SessionChatReoisitory';
+import { UserService } from './Application/Services/UserService';
+import { Jwt } from './Application/Commons/Utilities/Jwt';
 
 const geminiApiKey = process.env.GEMINI_API_KEY || "";
 if (!geminiApiKey) {
@@ -30,11 +32,16 @@ export const createApp = () => {
 
     const userRepository = new UserRepository();
     const sessionChatRepository = new SessionChatRepository();
-    const geminiRepository = new GeminiRepository(geminiApiKey);
     const chatHistoryRepository = new ChatHistoryRepository();
+    const geminiRepository = new GeminiRepository(geminiApiKey);
+
+    const jwt = new Jwt();
     const qaService = new AskQuestionService(userRepository, geminiRepository, chatHistoryRepository, sessionChatRepository);
+    const userService = new UserService(jwt, userRepository);
     const fileStoreService = new FileStoreService(geminiRepository);
     const qaRouter = createQaRouter(qaService);
+    const userRouter = createUserRouter(userService);
+
     const fileStoreRouter = createFileStoreRouter(fileStoreService);
 
     app.use(express.json());
@@ -42,6 +49,7 @@ export const createApp = () => {
 
     app.use('/files', express.static('files'));
 
+    app.use("/api/users", userRouter)
     app.use("/api/qa", qaRouter);
     app.use("/api/file-store", fileStoreRouter);
 

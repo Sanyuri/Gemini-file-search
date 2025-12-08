@@ -14,19 +14,20 @@ datasource db {
 }
 
 model User {
-  id            String @id @default(uuid()) @db.Uuid
-  username      String @unique
-  email         String @unique
-  password      String
-  isActive      Boolean @default(true)
-  sessionChats  SessionChat[]
-  createdAt     DateTime
-  updatedAt     DateTime?
-  createdBy     String
-  updatedBy     String?
-  isDeleted     Boolean @default(false)
-  deletedAt     DateTime?
-  deletedBy     String?
+  id              String @id @default(uuid()) @db.Uuid
+  username        String @unique
+  email           String @unique
+  password        String
+  isActive        Boolean @default(true)
+  sessionChats    SessionChat[]
+  FileSearchStore FileSearchStore[]
+  createdAt       DateTime
+  updatedAt       DateTime?
+  createdBy       String
+  updatedBy       String?
+  isDeleted       Boolean @default(false)
+  deletedAt       DateTime?
+  deletedBy       String?
 }
 
 model SessionChat {
@@ -50,6 +51,21 @@ model ChatHistory  {
   sourceUrls    String? @db.Text
   sessionChatId String @default(uuid()) @db.Uuid
   sessionChat   SessionChat @relation(fields: [sessionChatId], references: [id])
+  createdAt     DateTime
+  updatedAt     DateTime?
+  createdBy     String
+  updatedBy     String?
+  isDeleted     Boolean @default(false)
+  deletedAt     DateTime?
+  deletedBy     String?
+}
+
+model FileSearchStore {
+  id            String @id
+  storeName     String
+  sizeBytes     String?
+  userId        String @default(uuid()) @db.Uuid
+  user          User  @relation(fields: [userId], references: [id])
   createdAt     DateTime
   updatedAt     DateTime?
   createdBy     String

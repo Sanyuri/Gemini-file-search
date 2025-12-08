@@ -1,4 +1,4 @@
-import { User } from "../Database/generated/prisma";
+import { User } from "../../Domain/Entities/User";
 import prisma from "../Database/Prisma";
 
 export class UserRepository {

@@ -1,0 +1,36 @@
+ARG MODE=production
+
+#Base build
+FROM node:latest AS base
+WORKDIR /app
+
+#Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
+
+#Copy the rest of the application code
+COPY . .
+
+#------------------------------------------------
+# Development stage
+#------------------------------------------------
+FROM base AS dev
+ENV NODE_ENV=development
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+#------------------------------------------------
+# Production stage
+#------------------------------------------------
+FROM base AS production
+RUN npm run build
+
+FROM nginx:stable AS prod
+COPY --from=production /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+#------------------------------------------------
+# Final stage
+#------------------------------------------------
+FROM ${MODE} AS final

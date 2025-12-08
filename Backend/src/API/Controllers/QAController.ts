@@ -14,7 +14,7 @@ export class QAController extends BaseController {
      * @param res - The response object to send the answer.
      * @returns An answer to the question or an error.
      */
-    async ask(req: Request, res: Response){
+    async ask(req: Request, res: Response) {
 
         const data: ApiRequest<AskModel> = req.body;
 
