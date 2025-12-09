@@ -1,4 +1,5 @@
 import { FileSearchStore } from '../../Domain/Entities/FileSearchStore';
+import { User } from '../../Domain/Entities/User';
 import prisma from '../Database/Prisma';
 export class FileSearchStoreRepository {
     /**
@@ -25,5 +26,26 @@ export class FileSearchStoreRepository {
             createdFileSearchStore.createdBy,
             createdFileSearchStore.sizeBytes || undefined
         );
+    }
+
+    /**
+     * Get file search stores by user ID.
+     * @param userId 
+     * @returns
+     */
+    async findByUserId(userId: string): Promise<FileSearchStore[]> {
+        const stores = await prisma.fileSearchStore.findMany({
+            where: {
+                userId: userId,
+                isDeleted: false
+            }
+        });
+        return stores.map(store => new FileSearchStore(
+            store.id,
+            store.storeName,
+            { id: userId } as User,
+            store.createdBy,
+            store.sizeBytes || undefined
+        ));
     }
 }

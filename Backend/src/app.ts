@@ -9,6 +9,8 @@ import { UserRepository } from './Infrastructure/Repositories/UserRepository';
 import { SessionChatRepository } from './Infrastructure/Repositories/SessionChatReoisitory';
 import { UserService } from './Application/Services/UserService';
 import { Jwt } from './Application/Commons/Utilities/Jwt';
+import cookieParser from 'cookie-parser';
+import { FileSearchStoreRepository } from './Infrastructure/Repositories/FileSearchStoreRepository';
 
 const geminiApiKey = process.env.GEMINI_API_KEY || "";
 if (!geminiApiKey) {
@@ -34,16 +36,18 @@ export const createApp = () => {
     const sessionChatRepository = new SessionChatRepository();
     const chatHistoryRepository = new ChatHistoryRepository();
     const geminiRepository = new GeminiRepository(geminiApiKey);
+    const fileSearchStoreRepository = new FileSearchStoreRepository();
 
     const jwt = new Jwt();
     const qaService = new AskQuestionService(userRepository, geminiRepository, chatHistoryRepository, sessionChatRepository);
-    const userService = new UserService(jwt, userRepository);
+    const userService = new UserService(jwt, userRepository, fileSearchStoreRepository);
     const fileStoreService = new FileStoreService(geminiRepository);
     const qaRouter = createQaRouter(qaService);
     const userRouter = createUserRouter(userService);
 
     const fileStoreRouter = createFileStoreRouter(fileStoreService);
 
+    app.use(cookieParser());
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
@@ -59,3 +63,4 @@ export const createApp = () => {
 
     return app;
 };
+

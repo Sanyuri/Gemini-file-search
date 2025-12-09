@@ -4,10 +4,10 @@
         <BForm @submit="onSubmit">
             <BFormGroup label="Select Store" label-for="select-store">
                 <BFormSelect id="select-store" v-model="selected" :options="options" required></BFormSelect>
-                <BBFormGroup>
+                <BFormGroup>
                     <BButton type="submit" variant="primary">Change File Store</BButton>
                     <BButton variant="secondary" @click="modal = false">Cancel</BButton>
-                </BBFormGroup>
+                </BFormGroup>
             </BFormGroup>
         </BForm>
     </BModal>

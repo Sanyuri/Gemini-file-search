@@ -1,26 +1,19 @@
-import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import { ApiResponse } from '../../Application/Commons/Models/Apis/ApiResponse';
 
-export const authenticateJWT = (req: any, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
+export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
+  const token = req.cookies.accessToken;
 
-    if (!authHeader) {
-        return res.status(401).json({ message: 'Authentication token missing' });
-    }
+  if (!token) {
+    return res.status(401).json(new ApiResponse<string>(401, 'Authentication token is missing', ''));
+  }
 
-    const token = authHeader.split(' ')[1];
-    const secretKey = process.env.JWT_SECRET;
-
-    if (!secretKey) {
-        return res.status(500).json({ message: 'JWT secret key not configured' });
-    }
-
-    jwt.verify(token, secretKey, (err: any, user: any) => {
-        if (err) {
-            return res.status(403).json({ message: 'Invalid or expired token' });
-        }
-
-        req.user = user;
-        next();
-    });
-};
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    req.body = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json(new ApiResponse<string>(401, 'Invalid or expired token', ''));
+  }
+}

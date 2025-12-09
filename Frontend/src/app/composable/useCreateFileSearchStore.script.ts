@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import router from '@/app/router'
 import type { ApiResponse } from '@/models/interfaces/apiResponse'
 import type { FileSearchStore } from '@/models/entities/fileSearchStore'
+import { getCurrentSearchStore } from '@/utilities/getCurrentSearchStore'
 
 export function useCreateFileSearchStore() {
 
@@ -31,8 +32,12 @@ export function useCreateFileSearchStore() {
                         .flatMap(cookieValue => cookieValue ? cookieValue.split(',') : [])
 
                     existingStores.push(apiResponse.data.name)
-
                     document.cookie = `fileSearchStores=${existingStores.join(',')}`
+
+                    const currentFileSearchStore = getCurrentSearchStore()
+                    if (!currentFileSearchStore) {
+                        document.cookie = `currentFileSearchStore=${apiResponse.data.name}; path=/`
+                    }
 
                     alert(`File search store "${apiResponse.data.name}" has been created successfully.`)
                 }

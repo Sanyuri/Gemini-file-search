@@ -5,10 +5,10 @@
       <BFormGroup label="Store Name" label-for="store-name">
         <BFormInput id="store-name" v-model="storeName" required placeholder="Enter store name"></BFormInput>
       </BFormGroup>
-      <BBFormGroup>
+      <BFormGroup>
         <BButton type="submit" variant="primary">Create Store</BButton>
         <BButton variant="secondary" @click="modal = false">Cancel</BButton>
-      </BBFormGroup>
+      </BFormGroup>
     </BForm>
   </BModal>
 </template>

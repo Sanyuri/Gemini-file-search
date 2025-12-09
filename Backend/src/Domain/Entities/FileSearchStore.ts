@@ -1,5 +1,4 @@
-import { BaseEntity } from './BaseEntity.js'
-import { v4 as uuidv4 } from 'uuid'
+import { BaseEntity } from './BaseEntity'
 import { User } from './User.js';
 
 export class FileSearchStore extends BaseEntity<string> {

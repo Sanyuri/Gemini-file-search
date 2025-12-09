@@ -27,6 +27,23 @@ export const createUserRouter = (userService: IUserService): Router => {
         userController.register.bind(userController) as ControllerFunction
     );
 
+    router.post(
+        '/logout',
+        authenticateJWT,
+        userController.logout.bind(userController) as ControllerFunction
+    );
+
+    router.get(
+        '/profile',
+        authenticateJWT,
+        userController.getProfile.bind(userController) as ControllerFunction
+    );
+
+    router.get(
+        '/file-stores',
+        authenticateJWT,
+        userController.getUserFileSearchStores.bind(userController) as ControllerFunction
+    );
     return router;
 }
 

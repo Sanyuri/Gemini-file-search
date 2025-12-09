@@ -24,7 +24,7 @@ export function useChatBot() {
             questionText: question.value,
             fileSearchStoreName: fileSearchStoreName,
             sessionChatId: sessionChatId,
-            userId: undefined
+            userId: currentUser ? currentUser.id : null
         }
 
         messages.value.push({ id: Date.now().toString(), sender: "user", text: question.value });

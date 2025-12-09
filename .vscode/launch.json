@@ -19,7 +19,11 @@
         "<node_internals>/**",
         "node_modules/**"
       ],
-      "envFile": "${workspaceFolder}/.env"
+      "resolveSourceMapLocations": [
+        "!**/node_modules/**",
+        "!**/src/Infrastructure/Database/generated/**"
+      ],
+      "envFile": "${workspaceFolder}/Backend/.env"
     }
   ]
 }
