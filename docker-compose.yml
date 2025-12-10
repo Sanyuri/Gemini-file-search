@@ -3,7 +3,7 @@ services:
     build:
       context: ./Backend
       args:
-        MODE: dev
+        MODE: production
     ports:
       - "3000:3000"
     environment:
@@ -21,7 +21,7 @@ services:
     build:
       context: ./Frontend
       args:
-        MODE: dev
+        MODE: production
     ports:
       - "5173:5173"
     depends_on:
