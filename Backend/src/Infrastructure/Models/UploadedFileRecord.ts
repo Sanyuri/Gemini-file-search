@@ -1,4 +1,4 @@
-export class FileSearchStore{
+export class UploadedFileRecord {
     storeName: string;
     fileNames: string[];
     operationName: string;

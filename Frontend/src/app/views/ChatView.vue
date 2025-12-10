@@ -1,12 +1,20 @@
 <template>
-  <div class="d-flex vh-100 bg-dark text-light flex-column">
-    <div class="p-3 border-bottom border-secondary">
-      <SideBar>
-        <BOrchestrator />
-        <ChatBox />
-      </SideBar>
-    </div>
-  </div>
+  <Suspense>
+    <template #default>
+      <div class="d-flex vh-100 bg-dark text-light flex-column">
+        <div class="p-3 border-bottom border-secondary">
+          <SideBar>
+            <BOrchestrator />
+            <ChatBox />
+          </SideBar>
+        </div>
+      </div>
+    </template>
+    <template #fallback>
+      <LoadingSpinner />
+    </template>
+  </Suspense>
+
 </template>
 
 <script setup lang="ts">

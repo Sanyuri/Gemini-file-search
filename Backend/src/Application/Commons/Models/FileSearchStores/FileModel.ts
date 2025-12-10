@@ -1,7 +1,3 @@
-export class FileModel {
+export interface FileModel {
     fileName: string;
-
-    constructor(fileName: string) {
-        this.fileName = fileName;
-    }
 }

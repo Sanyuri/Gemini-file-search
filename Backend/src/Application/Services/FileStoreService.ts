@@ -1,11 +1,16 @@
 import { IGeminiRepository } from "../../Infrastructure/ExternalServices/IGeminiService";
-import { FileSearchStore } from "../../Infrastructure/Models/FileSearchStore";
+import { UploadedFileRecord } from "../../Infrastructure/Models/UploadedFileRecord";
 import { FileSearchStore as FileSearchStoreGemini, Pager } from "@google/genai"
 import { IFileStoreService } from "../Commons/IServices/IFileStoreService";
 import { MulterFile } from "../Commons/Models/MulterFiles/MulterFile";
+import { UserRepository } from "../../Infrastructure/Repositories/UserRepository";
+import { FileSearchStore } from "../../Domain/Entities/FileSearchStore";
+import { FileSearchStoreRepository } from "../../Infrastructure/Repositories/FileSearchStoreRepository";
 
 export class FileStoreService implements IFileStoreService {
-    constructor(private readonly GeminiRepository: IGeminiRepository) { }
+    constructor(private readonly GeminiRepository: IGeminiRepository,
+        private UserRepository: UserRepository,
+        private readonly FileRepository: FileSearchStoreRepository) { }
 
     //#region File Search Store Methods
     /**
@@ -13,8 +18,18 @@ export class FileStoreService implements IFileStoreService {
      * @param storeName - The name of the store to create.
      * @returns An object containing the name of the created store.
      */
-    async CreateStore(storeName: string): Promise<FileSearchStoreGemini> {
-        return await this.GeminiRepository.createStore(storeName);
+    async CreateStore(userId: string, storeName: string): Promise<FileSearchStoreGemini> {
+
+        const createdStore = await this.GeminiRepository.createStore(storeName);
+        if (userId) {
+            const currentUser = await this.UserRepository.findById(userId);
+            if (!currentUser) {
+                throw new Error("User not found");
+            }
+            await this.FileRepository.save(
+                new FileSearchStore(createdStore.name!, createdStore.displayName!, currentUser, currentUser.email, createdStore.sizeBytes));
+        }
+        return createdStore;
     }
 
     /**
@@ -33,7 +48,7 @@ export class FileStoreService implements IFileStoreService {
      * @param storeName - The name of the store to upload files to.
      * @returns A FileSearchStore object containing details of the uploaded files.
      */
-    async UploadFilesToStore(files: MulterFile[], storeName: string): Promise<FileSearchStore> {
+    async UploadFilesToStore(files: MulterFile[], storeName: string): Promise<UploadedFileRecord> {
         const uploadedFileNames: string[] = [];
         for (const file of files) {
             const filePath = file.path;

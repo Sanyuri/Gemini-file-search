@@ -44,6 +44,18 @@ export const createUserRouter = (userService: IUserService): Router => {
         authenticateJWT,
         userController.getUserFileSearchStores.bind(userController) as ControllerFunction
     );
+
+    router.get(
+        '/session-chats',
+        authenticateJWT,
+        userController.getUserSessionChats.bind(userController) as ControllerFunction
+    );
+
+    router.post(
+        '/chat-histories',
+        authenticateJWT,
+        userController.getUserChatHistories.bind(userController) as ControllerFunction
+    );
     return router;
 }
 

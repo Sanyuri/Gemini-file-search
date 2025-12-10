@@ -1,8 +1,13 @@
+import { SessionChat } from "../../Domain/Entities/SessionChat";
 import { User } from "../../Domain/Entities/User";
+import { ChatHistoryRepository } from "../../Infrastructure/Repositories/ChatHistoryRepository";
 import { FileSearchStoreRepository } from "../../Infrastructure/Repositories/FileSearchStoreRepository";
+import { SessionChatRepository } from "../../Infrastructure/Repositories/SessionChatReoisitory";
 import { UserRepository } from "../../Infrastructure/Repositories/UserRepository";
 import { IUserService } from "../Commons/IServices/IUserService";
+import { ChatHistoryMapper } from "../Commons/Mappers/ChatHistoryMapper";
 import { FileSearchStoreMapper } from "../Commons/Mappers/FileSearchStoreMapper";
+import { SessionChatMapper } from "../Commons/Mappers/SessionChatMapper";
 import { UserMapper } from "../Commons/Mappers/UserMapper";
 import { LoginModel } from "../Commons/Models/Users/LoginModel";
 import { RegisterModel } from "../Commons/Models/Users/RegisterModel";
@@ -10,7 +15,11 @@ import { Jwt } from "../Commons/Utilities/Jwt";
 import { PasswordHashing } from "../Commons/Utilities/PasswordHashing";
 
 export class UserService implements IUserService {
-    constructor(private jwt: Jwt, private userRepository: UserRepository, private fileSearchStoreRepository: FileSearchStoreRepository) { }
+    constructor(private jwt: Jwt,
+        private userRepository: UserRepository,
+        private fileSearchStoreRepository: FileSearchStoreRepository,
+        private sessionChatRepository: SessionChatRepository,
+        private chatHistoryRepository: ChatHistoryRepository) { }
     /**
      * Register a new user.
      * @param data 
@@ -60,12 +69,45 @@ export class UserService implements IUserService {
      * @param userId
      * @returns
      */
-    async getUserFileSearchStores(userId: any): Promise<ReturnType<typeof FileSearchStoreMapper.toDTO>[]> {
+    async getUserFileSearchStores(userId: string): Promise<ReturnType<typeof FileSearchStoreMapper.toDTO>[]> {
         const user = await this.userRepository.findById(userId);
         if (!user) {
             throw new Error("User not found");
         }
         const stores = await this.fileSearchStoreRepository.findByUserId(user.id);
         return stores.map(store => FileSearchStoreMapper.toDTO(store));
+    }
+
+    /**
+     * Get session chats for a user.
+     * @param userId
+     * @returns
+     */
+    async getUserSessionChats(userId: string): Promise<ReturnType<typeof SessionChatMapper.toDTO>[]> {
+        const user = await this.userRepository.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const sessions = await this.sessionChatRepository.findByUserId(user.id);
+        return sessions.map((session: SessionChat) => SessionChatMapper.toDTO(session));
+    }
+
+    /**
+     * Get chat histories for a user in a session.
+     * @param userId
+     * @param sessionChatId
+     * @returns
+     */
+    async getUserChatHistories(userId: string, sessionChatId: string): Promise<ReturnType<typeof ChatHistoryMapper.toDTO>[]> {
+        const user = await this.userRepository.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const session = await this.sessionChatRepository.findById(sessionChatId);
+        if (!session) {
+            throw new Error("Session chat not found");
+        }
+        const chatHistories = await this.chatHistoryRepository.findBySessionChat(session.id);
+        return chatHistories.map(chatHistory => ChatHistoryMapper.toDTO(chatHistory));
     }
 }

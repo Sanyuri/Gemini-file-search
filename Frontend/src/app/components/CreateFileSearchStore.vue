@@ -1,5 +1,5 @@
 <template>
-  <BButton @click="modal = !modal"> Create File Search Store </BButton>
+  <BButton @click="modal = !modal" class="d-flex justify-content-center align-items-center"> Create File Search Store </BButton>
   <BModal v-model="modal" title="Create File Search Store" no-footer>
     <BForm @submit="onSubmit">
       <BFormGroup label="Store Name" label-for="store-name">

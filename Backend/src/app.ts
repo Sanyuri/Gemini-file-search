@@ -40,8 +40,8 @@ export const createApp = () => {
 
     const jwt = new Jwt();
     const qaService = new AskQuestionService(userRepository, geminiRepository, chatHistoryRepository, sessionChatRepository);
-    const userService = new UserService(jwt, userRepository, fileSearchStoreRepository);
-    const fileStoreService = new FileStoreService(geminiRepository);
+    const userService = new UserService(jwt, userRepository, fileSearchStoreRepository, sessionChatRepository, chatHistoryRepository);
+    const fileStoreService = new FileStoreService(geminiRepository, userRepository, fileSearchStoreRepository);
     const qaRouter = createQaRouter(qaService);
     const userRouter = createUserRouter(userService);
 

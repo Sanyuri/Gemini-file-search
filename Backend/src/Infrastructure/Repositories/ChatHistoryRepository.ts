@@ -17,11 +17,23 @@ export class ChatHistoryRepository {
             sessionChat: {
                 connect: { id: chatHistory.sessionChat?.id }
             },
-            sources: chatHistory.sources,
+            sourceUrls: chatHistory.sources?.join(","),
         };
 
         const result = await prisma.chatHistory.create({ data });
-        return result as ChatHistory;
+        return {
+            id: result.id,
+            chatHistory: result.chatHistory,
+            sessionChat: chatHistory.sessionChat,
+            sources: result.sourceUrls ? result.sourceUrls.split(",") : [],
+            createdAt: result.createdAt,
+            updatedAt: result.updatedAt || undefined,
+            isDeleted: result.isDeleted,
+            createdBy: result.createdBy,
+            updatedBy: result.updatedBy || undefined,
+            deletedAt: result.deletedAt || undefined,
+            deletedBy: result.deletedBy || undefined,
+        };
     }
 
     /**
@@ -35,8 +47,22 @@ export class ChatHistoryRepository {
                 sessionChatId: sessionChatId,
                 isDeleted: false,
             },
+            orderBy: { createdAt: 'asc' },
+            include: { sessionChat: true },
         });
-        return results as ChatHistory[];
+        return results.map(result => ({
+            id: result.id,
+            chatHistory: result.chatHistory,
+            sessionChat: result.sessionChat,
+            sources: result.sourceUrls ? result.sourceUrls.split(",") : [],
+            createdAt: result.createdAt,
+            updatedAt: result.updatedAt || undefined,
+            isDeleted: result.isDeleted,
+            createdBy: result.createdBy,
+            updatedBy: result.updatedBy || undefined,
+            deletedAt: result.deletedAt || undefined,
+            deletedBy: result.deletedBy || undefined,
+        })) as ChatHistory[];
     }
 
     /**

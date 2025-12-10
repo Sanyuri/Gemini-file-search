@@ -6,6 +6,12 @@
         class="mb-3 p-3 rounded bg-secondary d-flex flex-column break-word pre-wrap" style="max-width: 70%;"
         :class="{ 'ms-auto text-end': msg.sender === 'user' }">
         {{ msg.text }}
+        <div v-if="msg.source" class="mt-2 pt-2 border-top border-light small">
+          <strong>Sources:</strong>
+          <div v-for="(source, index) in msg.source.split(', ')" :key="index">
+            <a target="_blank" class="text-info text-decoration-underline text-dark">{{ source }}</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -20,5 +26,5 @@
 <script setup lang="ts">
 import { useChatBot } from '../composable/useChatBot.script';
 
-const { messages, send, question, chatScreen } = useChatBot();
+const { messages, send, question, chatScreen } = await useChatBot();
 </script>

@@ -1,7 +1,3 @@
-export class FileSearchStoreModel {
+export interface FileSearchStoreModel {
     storeName: string;
-
-    constructor(storeName: string) {
-        this.storeName = storeName;
-    }
 }

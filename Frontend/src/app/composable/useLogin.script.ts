@@ -25,6 +25,7 @@ export function useLogin() {
                 document.cookie = `accessToken=${token}; path=/; secure; HttpOnly; SameSite=Strict`
                 document.cookie = `isAuthenticated=true; path=/`
                 alert("Login successful!")
+                window.location.reload()
             }
         } catch (error) {
             console.error("Error during login:", error);

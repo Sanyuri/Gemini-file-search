@@ -17,8 +17,11 @@
         <div v-if="!collapsed">
           <nav class="d-flex flex-column">
             <CreateFileSearchStore />
-            <SelectSearchStore />
+            <div v-if="authStatus">
+              <SelectSearchStore />
+            </div>
             <UploadToFileStore />
+            <ListSessionChat />
           </nav>
         </div>
       </div>
@@ -62,12 +65,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import SelectSearchStore from './SelectSearchStore.vue'
 import CreateFileSearchStore from './CreateFileSearchStore.vue'
 import UploadToFileStore from './UploadToFileStore.vue'
 import Login from './Login.vue'
 import Register from './Register.vue'
 import { useLogout } from '../composable/useLogout.script'
+import ListSessionChat from './ListSessionChat.vue'
+import SelectSearchStore from './SelectSearchStore.vue'
 
 const collapsed = ref(false)
 const { onLogout } = useLogout()

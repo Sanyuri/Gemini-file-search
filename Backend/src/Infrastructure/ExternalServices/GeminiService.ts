@@ -15,28 +15,39 @@ export class GeminiRepository implements IGeminiRepository {
      * @param fileSearchStoreName - The name of the file search store to query.
      * @returns 
      */
-    async queryFileSearch(questionText: string, fileSearchStoreName: string): Promise<GeminiResponse> {
-        const response = await this.ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [{ role: 'user', parts: [{ text: questionText }] }],
-            config: {
-                tools: [{
-                    fileSearch: {
-                        fileSearchStoreNames: [`${fileSearchStoreName}`],
-                    },
-                }],
-            },
-        });
+    async queryFileSearch(questionText: string, fileSearchStoreName: string, retries = 3): Promise<GeminiResponse> {
+        try {
+            const response = await this.ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: [{ role: 'user', parts: [{ text: questionText }] }],
+                config: {
+                    tools: [{
+                        fileSearch: {
+                            fileSearchStoreNames: [`${fileSearchStoreName}`],
+                        },
+                    }],
+                },
+            });
 
-        return {
-            text: response.text ?? "No response text received.",
-            sourceUrls: (() => {
-                const chunks: GroundingChunk[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
-                const titles = chunks.map(chunk => chunk.retrievedContext?.title ?? 'N/A');
-                // preserve order while removing duplicates
-                return Array.from(new Set(titles));
-            })(),
-        };
+            return {
+                text: response.text ?? "No response text received.",
+                sourceUrls: (() => {
+                    const chunks: GroundingChunk[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+                    const titles = chunks.map(chunk => chunk.retrievedContext?.title ?? 'N/A');
+                    // preserve order while removing duplicates
+                    return Array.from(new Set(titles));
+                })(),
+            };
+        } catch (error: any) {
+            if (retries > 0 && (error.status === 503 || error.status === 429)) {
+                const wait = (4 - retries) * 1000;
+                console.warn(`Gemini API rate limit exceeded or service unavailable. Retrying in ${wait / 1000} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, wait));
+                return this.queryFileSearch(questionText, fileSearchStoreName, retries - 1);
+            }
+            console.error("Error querying Gemini API:", error);
+            throw error;
+        }
     }
     //#endregion
 
@@ -128,7 +139,7 @@ export class GeminiRepository implements IGeminiRepository {
             return await this.ai.fileSearchStores.create({
                 config: { displayName: displayName }
             });
-        }catch (error) {
+        } catch (error) {
             throw new Error(`Failed to create file search store in Gemini API. Error: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }

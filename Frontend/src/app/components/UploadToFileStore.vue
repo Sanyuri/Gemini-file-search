@@ -1,5 +1,5 @@
 <template>
-    <BButton @click="modal = !modal"> Upload to File Store </BButton>
+    <BButton @click="modal = !modal" class="d-flex justify-content-center align-items-center"> Upload to File Store </BButton>
 
     <BModal v-model="modal" title="Upload to File Store" no-footer>
         <BForm @submit="onSubmit">

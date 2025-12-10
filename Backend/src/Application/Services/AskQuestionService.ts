@@ -22,7 +22,7 @@ export class AskQuestionService implements IAskQuestionService {
         // Save question and answer if userId is provided
         if (askModel.userId) {
             //Create Session Chat if sessionChatId is not provided
-            const answer = await this.saveQuestionAndAnswer(askModel.questionText, geminiResponse.text, askModel.userId, askModel.sessionChatId);
+            const answer = await this.saveQuestionAndAnswer(askModel.questionText, geminiResponse.text, askModel.userId, askModel.sessionChatId, geminiResponse.sourceUrls);
             return ChatHistoryMapper.toDTO(answer);
         }
         return {
@@ -40,7 +40,7 @@ export class AskQuestionService implements IAskQuestionService {
         };
     }
 
-    private async saveQuestionAndAnswer(questionText: string, answerText: string, userId: string, sessionChatId?: string): Promise<ChatHistory> {
+    private async saveQuestionAndAnswer(questionText: string, answerText: string, userId: string, sessionChatId?: string, sourceUrls?: string[]): Promise<ChatHistory> {
         let sessionChat;
         const user = await this.UserRepository.findById(userId);
         // Validate user existence
@@ -59,7 +59,7 @@ export class AskQuestionService implements IAskQuestionService {
         // Save question
         await this.ChatHistoryRepository.save({
             chatHistory: questionText,
-            createdBy: user.username,
+            createdBy: "user",
             sessionChat: sessionChat
         } as ChatHistory);
 
@@ -67,7 +67,8 @@ export class AskQuestionService implements IAskQuestionService {
         return await this.ChatHistoryRepository.save({
             chatHistory: answerText,
             createdBy: "chatbot",
-            sessionChat: sessionChat
+            sessionChat: sessionChat,
+            sources: sourceUrls
         } as ChatHistory);
     }
 

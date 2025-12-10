@@ -8,6 +8,7 @@ import { FileModel } from "../../Application/Commons/Models/FileSearchStores/Fil
 import { FileSearchStorePagerModel } from "../../Application/Commons/Models/FileSearchStores/FileSearchStorePagerModal";
 import { FilePagerModel } from "../../Application/Commons/Models/FileSearchStores/FilePagerModel";
 import { FileSearchStore } from "@google/genai";
+import { CreateFileStoreModel } from "../../Application/Commons/Models/FileSearchStores/CreateFileStoreModel";
 
 export class FileController extends BaseController {
     constructor(private fileStoreService: IFileStoreService) { super(); }
@@ -20,14 +21,14 @@ export class FileController extends BaseController {
      */
     async createFileSearchStore(req: Request, res: Response) {
 
-        const data: ApiRequest<FileSearchStoreModel> = req.body;
+        const data: ApiRequest<CreateFileStoreModel> = req.body;
 
         if (!data.data.storeName) {
             return this.badRequest<FileSearchStoreModel>(res, "storeName is required.");
         }
 
         try {
-            const fileStore = await this.fileStoreService.CreateStore(data.data.storeName);
+            const fileStore = await this.fileStoreService.CreateStore(data.data.userId, data.data.storeName);
             return this.ok<FileSearchStore>(res, fileStore, `File search store ${fileStore.displayName} created successfully.`);
         } catch (error) {
             console.error("Error in createFileSearchStore endpoint:", error);

@@ -1,8 +1,9 @@
 import { ref } from 'vue'
 import router from '@/app/router'
 import type { ApiResponse } from '@/models/interfaces/apiResponse'
-import type { FileSearchStore } from '@/models/entities/fileSearchStore'
+import type { FileSearchStoreResponse } from '@/models/entities/fileSearchStore'
 import { getCurrentSearchStore } from '@/utilities/getCurrentSearchStore'
+import { getCurrentUser } from '@/utilities/getCurrentUser'
 
 export function useCreateFileSearchStore() {
 
@@ -14,16 +15,18 @@ export function useCreateFileSearchStore() {
         e.preventDefault()
 
         try {
+            const currentUser = await getCurrentUser()
             const data = {
                 data: {
-                    storeName: storeName.value
+                    storeName: storeName.value,
+                    userId: currentUser?.data?.id
                 },
                 timestamp: Date.now()
             }
             const response = await router.post('/file-store/create-store', data)
 
             if (response.status === 200) {
-                const apiResponse = response.data as ApiResponse<FileSearchStore>
+                const apiResponse = response.data as ApiResponse<FileSearchStoreResponse>
                 if (apiResponse.data) {
                     const existingStores = document.cookie
                         .split('; ')
@@ -40,6 +43,7 @@ export function useCreateFileSearchStore() {
                     }
 
                     alert(`File search store "${apiResponse.data.name}" has been created successfully.`)
+                    window.location.reload()
                 }
             }
         } catch (error) {
