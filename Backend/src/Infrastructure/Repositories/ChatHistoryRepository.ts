@@ -1,5 +1,6 @@
 import prisma from "../Database/Prisma";
 import { ChatHistory } from "../../Domain/Entities/ChatHistory";
+import { Chat } from "@google/genai";
 
 export class ChatHistoryRepository {
     /**
@@ -50,19 +51,10 @@ export class ChatHistoryRepository {
             orderBy: { createdAt: 'asc' },
             include: { sessionChat: true },
         });
-        return results.map(result => ({
-            id: result.id,
-            chatHistory: result.chatHistory,
-            sessionChat: result.sessionChat,
-            sources: result.sourceUrls ? result.sourceUrls.split(",") : [],
-            createdAt: result.createdAt,
-            updatedAt: result.updatedAt || undefined,
-            isDeleted: result.isDeleted,
-            createdBy: result.createdBy,
-            updatedBy: result.updatedBy || undefined,
-            deletedAt: result.deletedAt || undefined,
-            deletedBy: result.deletedBy || undefined,
-        })) as ChatHistory[];
+        return results.map(result => new ChatHistory(
+            result.chatHistory,
+            result.createdBy,
+        ));
     }
 
     /**
