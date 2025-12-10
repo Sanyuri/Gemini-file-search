@@ -12,7 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { getUserSessionChats } from '@/utilities/getUserSessioNChats';
+import { getUserSessionChats } from '@/utilities/getUserSessionChats';
+
 const { sessionChats } = await getUserSessionChats();
 function changeSessionChat(sessionChat: string) {
     document.cookie = `currentSessionChat=${sessionChat}; path=/`;
