@@ -62,6 +62,13 @@ cd Frontend
 npm run dev
 ```
 
+6. Database migrate
+```bash
+cd Backend
+npx prisma generate
+npx prisma migrate dev
+```
+
 ### Troubleshooting
 - Ensure Node.js 18+ is installed: `node --version`
 - Verify Docker is running before using docker-compose

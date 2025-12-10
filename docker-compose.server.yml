@@ -2,21 +2,21 @@ services:
   backend:
     build:
       context: ./Backend
-      target: dev
+      target: prod
     ports:
       - "3000:3000"
     volumes:
       - ./Backend:/app
       - /app/node_modules
     env_file:
-      - ./.env.development
+      - ./.env.production
     depends_on:
       - db_data
 
   frontend:
     build:
       context: ./Frontend
-      target: dev
+      target: prod
     ports:
       - "5173:5173"
     volumes:
@@ -25,12 +25,12 @@ services:
     depends_on:
       - backend
     env_file:
-      - ./.env.development
+      - ./.env.production
 
   db_data:
     image: postgres:18
     env_file:
-      - ./.env.development
+      - ./.env.production
     volumes:
       - db_data:/var/lib/postgresql
     ports:

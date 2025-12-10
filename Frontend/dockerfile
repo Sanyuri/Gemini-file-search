@@ -1,36 +1,48 @@
-ARG MODE=production
-
-#Base build
-FROM node:latest AS base
+#------------------------------------------------
+# Base stage: cài dependencies chung
+#------------------------------------------------
+FROM node:20-alpine AS base
 WORKDIR /app
 
-#Copy package.json and install dependencies
+# Copy package.json và package-lock.json
 COPY package*.json ./
 RUN npm install
 
-#Copy the rest of the application code
+# Copy toàn bộ source code
 COPY . .
 
 #------------------------------------------------
-# Development stage
+# Development stage (Vite)
 #------------------------------------------------
 FROM base AS dev
 ENV NODE_ENV=development
 EXPOSE 5173
+
+# Chạy Vite dev server, cho phép truy cập từ bên ngoài Docker
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 #------------------------------------------------
-# Production stage
+# Build stage
 #------------------------------------------------
-FROM base AS production
+FROM base AS build
+ENV NODE_ENV=production
+
+# Build Vue app
 RUN npm run build
 
-FROM nginx:stable AS prod
-COPY --from=production /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+#------------------------------------------------
+# Production stage (nginx)
+#------------------------------------------------
+FROM nginx:stable-alpine AS production
 
-#------------------------------------------------
-# Final stage
-#------------------------------------------------
-FROM ${MODE} AS final
+# Xóa nội dung mặc định của nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy kết quả build từ stage build sang nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,42 +1,56 @@
-ARG MODE=production
-FROM node:latest AS base
+#-----------------------------
+# Base stage: cài deps chung
+#-----------------------------
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
-#Copy package.json and install dependencies
+# Copy package.json và package-lock.json
 COPY package*.json ./
+
+# Cài tất cả dependencies (dev + production)
 RUN npm install
 
-#Copy the rest of the application code
+# Copy toàn bộ source code
 COPY . .
 
-# Copy prisma schema
-COPY prisma ./prisma
-
-#------------------------------------------------
+#-----------------------------
 # Development stage
-#------------------------------------------------
+#-----------------------------
 FROM base AS dev
+
 ENV NODE_ENV=development
 EXPOSE 3000
-# Start the application in development mode
-CMD ["npm", "start"]
 
-#------------------------------------------------
-# Production stage
-#------------------------------------------------
-FROM base AS production
+# Chạy server với ts-node-dev hoặc nodemon
+CMD ["npm", "run", "serve"]
+
+#-----------------------------
+# Build stage
+#-----------------------------
+FROM base AS build
+
 ENV NODE_ENV=production
 
-# Build TypeScript
+# Build TypeScript sang JavaScript
 RUN npm run build
 
-# Remove dev dependencies
-RUN npm prune --production
-EXPOSE 3000
-CMD ["sh", "-c", "npx prisma generate && npm run serve"]
+#-----------------------------
+# Production stage
+#-----------------------------
+FROM node:20-alpine AS production
 
-#------------------------------------------------
-# Final stage
-#------------------------------------------------
-FROM ${MODE} AS final
+WORKDIR /app
+
+# Copy package.json để cài production dependencies
+COPY package*.json ./
+
+# Chỉ cài production dependencies
+RUN npm install --production
+
+# Copy mã JS đã build từ stage build
+COPY --from=build /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["node", "dist/index.js"]
