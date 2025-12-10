@@ -34,7 +34,7 @@ export class SessionChatRepository {
      */
     async findByUserId(userId: string): Promise<SessionChat[]> {
         const results = await prisma.sessionChat.findMany({ where: { userId, isDeleted: false }, include: { user: true } });
-        return results.map(result => ({
+        return results.map((result): SessionChat => ({
             id: result.id,
             sessionName: result.sessionName,
             createdAt: result.createdAt,

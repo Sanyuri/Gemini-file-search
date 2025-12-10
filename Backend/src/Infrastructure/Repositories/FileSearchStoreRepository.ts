@@ -40,12 +40,11 @@ export class FileSearchStoreRepository {
                 isDeleted: false
             }
         });
-        return stores.map(store => new FileSearchStore(
-            store.id,
-            store.storeName,
-            { id: userId } as User,
-            store.createdBy,
-            store.sizeBytes || undefined
-        ));
+        return stores.map((store): FileSearchStore => {
+            return {
+                ...store,
+                user: { id: userId } as User
+            } as FileSearchStore;
+        });
     }
 }

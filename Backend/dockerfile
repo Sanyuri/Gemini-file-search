@@ -10,6 +10,9 @@ RUN npm install
 #Copy the rest of the application code
 COPY . .
 
+# Copy prisma schema
+COPY prisma ./prisma
+
 #------------------------------------------------
 # Development stage
 #------------------------------------------------
@@ -24,7 +27,14 @@ CMD ["npm", "start"]
 #------------------------------------------------
 FROM base AS production
 ENV NODE_ENV=production
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build TypeScript
 RUN npm run build
+
+# Remove dev dependencies
 RUN npm prune --production
 EXPOSE 3000
 CMD ["npm", "run", "serve"]

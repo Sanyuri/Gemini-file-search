@@ -51,10 +51,12 @@ export class ChatHistoryRepository {
             orderBy: { createdAt: 'asc' },
             include: { sessionChat: true },
         });
-        return results.map(result => new ChatHistory(
-            result.chatHistory,
-            result.createdBy,
-        ));
+        return results.map((result): ChatHistory => {
+            return {
+                ...result,
+                sources: result.sourceUrls ? result.sourceUrls.split(",") : [],
+            } as ChatHistory;
+        });
     }
 
     /**
