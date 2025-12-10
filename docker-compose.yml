@@ -6,14 +6,8 @@ services:
         MODE: production
     ports:
       - "3000:3000"
-    environment:
-      PORT: 3000
-      NODE_ENV: ${NODE_ENV}
-      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db_data:5432/${DB_NAME}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      FRONTEND_URL: http://localhost:5173
+    env_file:
+      - .env.production
     depends_on:
       - db_data
 
@@ -26,8 +20,8 @@ services:
       - "5173:5173"
     depends_on:
       - backend
-    environment:
-      VITE_API_BASE_URL: http://localhost:3000
+    env_file:
+      - .env.production
 
   db_data:
     image: postgres:18
@@ -42,6 +36,5 @@ services:
 volumes:
   db_data:
     driver: local
-
 networks:
   app-network:
