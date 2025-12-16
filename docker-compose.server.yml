@@ -12,7 +12,13 @@ services:
       - ./.env.production
     depends_on:
       - db_data
-
+    command: >
+      sh -c "
+      npx prisma generate &&
+      npm run build &&
+      node dist/server.js
+      "
+      
   frontend:
     build:
       context: ./Frontend
