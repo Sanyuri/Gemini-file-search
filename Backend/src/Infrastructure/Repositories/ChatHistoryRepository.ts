@@ -1,6 +1,7 @@
 import prisma from "../Database/Prisma";
 import { ChatHistory } from "../../Domain/Entities/ChatHistory";
 import { ChatHistoryMapper } from "../Mappers/ChatHistoryMapper";
+import { Prisma } from "../Database/generated/prisma";
 
 export class ChatHistoryRepository {
     /**
@@ -22,7 +23,11 @@ export class ChatHistoryRepository {
      * @returns
      */
     async findBySessionChat(sessionChatId: string): Promise<ChatHistory[]> {
-        const results = await prisma.chatHistory.findMany({
+        type ChatHistoryWithSessionChat = Prisma.ChatHistoryGetPayload<{
+            include: { sessionChat: { include: { user: true } } };
+        }>;
+
+        const results: ChatHistoryWithSessionChat[] = await prisma.chatHistory.findMany({
             where: {
                 sessionChatId: sessionChatId,
                 isDeleted: false,
@@ -30,8 +35,8 @@ export class ChatHistoryRepository {
             orderBy: { createdAt: 'asc' },
             include: { sessionChat: { include: { user: true } } },
         });
-        return results.map((result): ChatHistory => {
-            return ChatHistoryMapper.toDomain({ ...result, sessionChat: result.sessionChat});
+        return results.map((result: ChatHistoryWithSessionChat) => {
+            return ChatHistoryMapper.toDomain({ ...result, sessionChat: result.sessionChat });
         });
     }
 
@@ -40,25 +45,25 @@ export class ChatHistoryRepository {
      * @param question
      * @returns
      */
-    async update(chatHistory: ChatHistory): Promise <ChatHistory> {
-            const data = {
-                chatHistory: chatHistory.chatHistory,
-                updatedAt: new Date(),
-                updatedBy: chatHistory.updatedBy,
-            };
-            const result = await prisma.chatHistory.update({
-                where: { id: chatHistory.id },
-                data,
-            });
-            return ChatHistoryMapper.toDomain({ ...result, sessionChat: ChatHistoryMapper.toDb(chatHistory).sessionChat });
-        }
+    async update(chatHistory: ChatHistory): Promise<ChatHistory> {
+        const data = {
+            chatHistory: chatHistory.chatHistory,
+            updatedAt: new Date(),
+            updatedBy: chatHistory.updatedBy,
+        };
+        const result = await prisma.chatHistory.update({
+            where: { id: chatHistory.id },
+            data,
+        });
+        return ChatHistoryMapper.toDomain({ ...result, sessionChat: ChatHistoryMapper.toDb(chatHistory).sessionChat });
+    }
 
     /**
      * Deletes a question by its ID.
      * @param id
      * @returns
      */
-    async delete (id: string): Promise < void> {
-            await prisma.chatHistory.delete({ where: { id } });
-        }
+    async delete(id: string): Promise<void> {
+        await prisma.chatHistory.delete({ where: { id } });
     }
+}

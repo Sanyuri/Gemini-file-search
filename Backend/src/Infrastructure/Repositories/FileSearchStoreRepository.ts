@@ -1,6 +1,7 @@
 import { FileSearchStore } from '../../Domain/Entities/FileSearchStore';
 import { User } from '../../Domain/Entities/User';
-import prisma from '../Database/Prisma';
+import prisma from "../Database/Prisma";
+import { FileSearchStore as FileSearchStoreDb } from "../Database/generated/prisma";
 import { FileSearchStoreMapper } from '../Mappers/FileSearchStoreMapper';
 export class FileSearchStoreRepository {
     /**
@@ -21,13 +22,13 @@ export class FileSearchStoreRepository {
      * @returns
      */
     async findByUserId(userId: string): Promise<FileSearchStore[]> {
-        const stores = await prisma.fileSearchStore.findMany({
+        const stores: FileSearchStoreDb[] = await prisma.fileSearchStore.findMany({
             where: {
                 userId: userId,
                 isDeleted: false
             }
         });
-        return stores.map((store): FileSearchStore => {
+        return stores.map((store: FileSearchStoreDb) => {
             return {
                 ...store,
                 user: { id: userId } as User
