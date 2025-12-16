@@ -40,6 +40,7 @@ export function useUploadToFileStore() {
             })
 
             alert(`Upload Response: ${response.data.message}`)
+            files.value = null
             modal.value = false
         } catch (error) {
             console.error("Error uploading files:", error)

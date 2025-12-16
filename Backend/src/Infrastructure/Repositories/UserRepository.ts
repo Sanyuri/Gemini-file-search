@@ -1,5 +1,6 @@
 import { User } from "../../Domain/Entities/User";
 import prisma from "../Database/Prisma";
+import { UserDbMapper } from "../Mappers/UserDbMapper";
 
 export class UserRepository {
     /**
@@ -37,16 +38,7 @@ export class UserRepository {
      * @returns
      */
     async save(user: User): Promise<User> {
-        const data = {
-            username: user.username,
-            email: user.email,
-            password: user.password,
-            createdAt: new Date(),
-            createdBy: user.createdBy,
-            updatedAt: undefined,
-            isDeleted: false,
-        };
-        const result = await prisma.user.create({ data });
+        const result = await prisma.user.create({ data: UserDbMapper.toDb(user) });
         return result as User;
     }
 
@@ -56,14 +48,7 @@ export class UserRepository {
      * @returns
      */
     async update(user: User): Promise<User> {
-        const data = {
-            username: user.username,
-            email: user.email,
-            password: user.password,
-            updatedAt: new Date(),
-            updatedBy: user.updatedBy,
-        };
-        const result = await prisma.user.update({ where: { id: user.id }, data });
+        const result = await prisma.user.update({ where: { id: user.id }, data: UserDbMapper.toDb(user) });
         return result as User;
     }
 

@@ -45,6 +45,9 @@
               </BDropdownItem>
             </div>
             <div v-else>
+              <BDropdownItem @click="newSessionChat">
+                New Session Chat
+              </BDropdownItem>
               <BDropdownItem @click="onLogout">
                 Logout
               </BDropdownItem>
@@ -77,6 +80,12 @@ const collapsed = ref(false)
 const { onLogout } = useLogout()
 
 const authStatus = document.cookie.split('; ').find(row => row.startsWith('isAuthenticated='))?.split('=')[1]
+
+const newSessionChat = () => {
+  document.cookie = `currentSessionChat=; path=/`
+  window.location.reload()
+}
+
 </script>
 
 <style scoped>

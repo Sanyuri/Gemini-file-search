@@ -6,7 +6,13 @@ export function authenticateJWT(req: AuthenticatedRequest, res: Response, next: 
   const token = req.cookies.accessToken;
 
   if (!token) {
-    return res.status(401).json(new ApiResponse<string>(401, 'Authentication token is missing', ''));
+    const response: ApiResponse<string> = {
+      status: 401,
+      message: 'Authentication token missing',
+      data: '',
+      timestamp: new Date()
+    };
+    return res.status(401).json(response);
   }
 
   try {
@@ -14,7 +20,13 @@ export function authenticateJWT(req: AuthenticatedRequest, res: Response, next: 
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json(new ApiResponse<string>(401, 'Invalid or expired token', ''));
+    const response: ApiResponse<string> = {
+      status: 401,
+      message: 'Invalid or expired token',
+      data: '',
+      timestamp: new Date()
+    };
+    return res.status(401).json(response);
   }
 }
 

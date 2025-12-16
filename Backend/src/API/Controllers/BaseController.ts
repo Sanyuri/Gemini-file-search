@@ -4,18 +4,42 @@ import { ApiResponse } from "../../Application/Commons/Models/Apis/ApiResponse";
 export abstract class BaseController {
 
     protected ok<T>(res: Response, data: T | null, message: string) {
-        return res.status(200).json(new ApiResponse(200, message, data));
+        const response: ApiResponse<T> = {
+            status: 200,
+            message: message,
+            data: data,
+            timestamp: new Date()
+        };
+        return res.status(200).json(response);
     }
 
     protected badRequest<T>(res: Response, message: string, data: T | null = null) {
-        return res.status(400).json(new ApiResponse(400, message, data));
+        const response: ApiResponse<T> = {
+            status: 400,
+            message: message,
+            data: data,
+            timestamp: new Date()
+        };
+        return res.status(400).json(response);
     }
 
     protected notFound<T>(res: Response, message: string, data: T | null = null) {
-        return res.status(404).json(new ApiResponse(404, message, data));
+        const response: ApiResponse<T> = {
+            status: 404,
+            message: message,
+            data: data,
+            timestamp: new Date()
+        };
+        return res.status(404).json(response);
     }
 
     protected internalError<T>(res: Response, message: string, data: T | null = null) {
-        return res.status(500).json(new ApiResponse(500, message, data));
+        const response: ApiResponse<T> = {
+            status: 500,
+            message: message,
+            data: data,
+            timestamp: new Date()
+        };
+        return res.status(500).json(response);
     }
 }

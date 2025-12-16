@@ -103,6 +103,10 @@ export class UserController extends BaseController {
 
         const data: ApiRequest<ChatHistoryModelRequest> = req.body;
 
+        if(!data.data.sessionChatId) {
+            return this.badRequest<string>(res, "sessionChatId is required.");
+        }
+
         try {
             const chatHistories = await this.userService.getUserChatHistories(userId, data.data.sessionChatId);
             return this.ok<ReturnType<typeof ChatHistoryMapper.toDTO>[]>(res, chatHistories, "User chat histories retrieved successfully.");

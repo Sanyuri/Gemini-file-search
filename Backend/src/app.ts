@@ -6,7 +6,7 @@ import { createFileStoreRouter, createQaRouter, createUserRouter } from "./API/R
 import { FileStoreService } from "./Application/Services/FileStoreService";
 import { ChatHistoryRepository } from './Infrastructure/Repositories/ChatHistoryRepository';
 import { UserRepository } from './Infrastructure/Repositories/UserRepository';
-import { SessionChatRepository } from './Infrastructure/Repositories/SessionChatReoisitory';
+import { SessionChatRepository } from './Infrastructure/Repositories/SessionChatRepository';
 import { UserService } from './Application/Services/UserService';
 import { Jwt } from './Application/Commons/Utilities/Jwt';
 import cookieParser from 'cookie-parser';

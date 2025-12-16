@@ -6,11 +6,11 @@ import { BaseEntity } from "./BaseEntity";
 export class SessionChat extends BaseEntity<string> {
     sessionName: string;
 
-    user?: User;
+    user: User;
 
     questions?: ChatHistory[];
 
-    constructor(sessionName: string, createdBy: string, user?: User) {
+    constructor(sessionName: string, createdBy: string, user: User) {
         super(uuidv4(), new Date(), createdBy, false);
         this.sessionName = sessionName;
         this.user = user;

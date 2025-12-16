@@ -6,6 +6,10 @@ import { MulterFile } from "../Commons/Models/MulterFiles/MulterFile";
 import { UserRepository } from "../../Infrastructure/Repositories/UserRepository";
 import { FileSearchStore } from "../../Domain/Entities/FileSearchStore";
 import { FileSearchStoreRepository } from "../../Infrastructure/Repositories/FileSearchStoreRepository";
+import { FileSearchStoreMapper } from "../Commons/Mappers/FileSearchStoreMapper";
+import { PagerResonse } from "../Commons/Models/Pagers/PagerResonse";
+import { FileModelResponse } from "../Commons/Models/FileSearchStores/FileModel";
+import { FileMapper } from "../Commons/Mappers/FileMapper";
 
 export class FileStoreService implements IFileStoreService {
     constructor(private readonly GeminiRepository: IGeminiRepository,
@@ -38,8 +42,21 @@ export class FileStoreService implements IFileStoreService {
     * @param pageToken - The token for the page to retrieve.
     * @returns A promise that resolves to a Pager object containing FileSearchStore objects.
     */
-    async ListStores(pageSize: number | undefined, pageToken: string | undefined): Promise<Pager<FileSearchStoreGemini>> {
-        return await this.GeminiRepository.listStores(pageSize, pageToken);
+    async ListStores(pageSize: number | undefined, pageToken: string | undefined): Promise<PagerResonse<FileSearchStoreMapper>> {
+        const stores = await this.GeminiRepository.listStores(pageSize, pageToken);
+        const items = stores.page.map(store => ({
+            id: store.name,
+            storeName: store.displayName,
+            createTime: store.createTime,
+            updateTime: store.updateTime,
+        }));
+        return {
+            items: items,
+            pagination: {
+                pageSize: stores.params.config?.pageSize,
+                nextPageToken: stores.params.config?.pageToken
+            }
+        };
     }
 
     /**
@@ -97,8 +114,9 @@ export class FileStoreService implements IFileStoreService {
      * @param storeName - The name of the store to retrieve information for.
      * @returns A promise that resolves to a FileSearchStore object containing store information.
      */
-    async GetStoreInfo(storeName: string): Promise<FileSearchStoreGemini> {
-        return await this.GeminiRepository.getStoreInfo(storeName);
+    async GetStoreInfo(storeName: string): Promise<ReturnType<typeof FileMapper.toDTO>> {
+        const storeInfo = await this.GeminiRepository.getStoreInfo(storeName);
+        return FileMapper.toDTO(storeInfo);
     }
 
     /**
@@ -106,8 +124,9 @@ export class FileStoreService implements IFileStoreService {
      * @param fileName - The name of the file to retrieve information for.
      * @returns A promise that resolves to a Document object containing file information.
      */
-    async GetFileInfo(fileName: string): Promise<FileSearchStoreGemini> {
-        return await this.GeminiRepository.getFileInfo(fileName);
+    async GetFileInfo(fileName: string): Promise<ReturnType<typeof FileMapper.toDTO>> {
+        const fileInfo = await this.GeminiRepository.getFileInfo(fileName);
+        return FileMapper.toDTO(fileInfo);
     }
 
     /**
@@ -117,8 +136,23 @@ export class FileStoreService implements IFileStoreService {
      * @param pageToken - The token for the page to retrieve.
      * @returns A promise that resolves to a Pager object containing Document objects.
      */
-    async ListFilesInStore(fileSearchStoreName: string, pageSize: number, pageToken?: string): Promise<Pager<FileSearchStoreGemini>> {
-        return await this.GeminiRepository.listFilesInStore(fileSearchStoreName, pageSize, pageToken);
+    async ListFilesInStore(fileSearchStoreName: string, pageSize: number, pageToken?: string): Promise<PagerResonse<FileModelResponse>> {
+        const files = await this.GeminiRepository.listFilesInStore(fileSearchStoreName, pageSize, pageToken);
+        const items = files.page.map(file => ({
+            id: file.name,
+            displayName: file.displayName,
+            sizeBytes: file.sizeBytes,
+            mimeType: file.mimeType,
+            createTime: file.createTime!,
+            updateTime: file.updateTime!,
+        }));
+        return {
+            items: items,
+            pagination: {
+                pageSize: files.params.config?.pageSize,
+                nextPageToken: files.params.config?.pageToken
+            }
+        };
     }
     //#endregion
 }

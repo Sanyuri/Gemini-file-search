@@ -2,7 +2,7 @@ import { SessionChat } from "../../Domain/Entities/SessionChat";
 import { User } from "../../Domain/Entities/User";
 import { ChatHistoryRepository } from "../../Infrastructure/Repositories/ChatHistoryRepository";
 import { FileSearchStoreRepository } from "../../Infrastructure/Repositories/FileSearchStoreRepository";
-import { SessionChatRepository } from "../../Infrastructure/Repositories/SessionChatReoisitory";
+import { SessionChatRepository } from "../../Infrastructure/Repositories/SessionChatRepository";
 import { UserRepository } from "../../Infrastructure/Repositories/UserRepository";
 import { IUserService } from "../Commons/IServices/IUserService";
 import { ChatHistoryMapper } from "../Commons/Mappers/ChatHistoryMapper";

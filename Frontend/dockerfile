@@ -1,14 +1,10 @@
-#------------------------------------------------
-# Base stage: cài dependencies chung
-#------------------------------------------------
 FROM node:20-alpine AS base
 WORKDIR /app
 
-# Copy package.json và package-lock.json
 COPY package*.json ./
 RUN npm install
 
-# Copy toàn bộ source code
+# Copy sources code
 COPY . .
 
 #------------------------------------------------
@@ -18,7 +14,7 @@ FROM base AS dev
 ENV NODE_ENV=development
 EXPOSE 5173
 
-# Chạy Vite dev server, cho phép truy cập từ bên ngoài Docker
+# Run Vite dev
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 #------------------------------------------------
@@ -35,10 +31,9 @@ RUN npm run build
 #------------------------------------------------
 FROM nginx:stable-alpine AS production
 
-# Xóa nội dung mặc định của nginx
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy kết quả build từ stage build sang nginx
+# Copy from build stage to nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Expose port 80

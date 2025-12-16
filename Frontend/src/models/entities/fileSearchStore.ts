@@ -1,5 +1,5 @@
 export interface FileSearchStoreResponse {
-    name: string;
+    id: string;
     displayName?: string;
     createTime?: string;
     updateTime?: string;

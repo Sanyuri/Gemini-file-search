@@ -2,7 +2,7 @@ import { IGeminiRepository } from "../../Infrastructure/ExternalServices/IGemini
 import { ChatHistoryRepository } from "../../Infrastructure/Repositories/ChatHistoryRepository";
 import { IAskQuestionService } from "../Commons/IServices/IAskQuestionService";
 import { AskModel } from "../Commons/Models/QAModels/AskModel";
-import { SessionChatRepository } from "../../Infrastructure/Repositories/SessionChatReoisitory";
+import { SessionChatRepository } from "../../Infrastructure/Repositories/SessionChatRepository";
 import { UserRepository } from "../../Infrastructure/Repositories/UserRepository";
 import { SessionChat } from "../../Domain/Entities/SessionChat";
 import { User } from "../../Domain/Entities/User";
@@ -17,6 +17,11 @@ export class AskQuestionService implements IAskQuestionService {
         private readonly SessionChatRepository: SessionChatRepository
     ) { }
 
+    /**
+     * Ask a question to the file search store
+     * @param askModel - The model containing the question and file search store name.
+     * @returns A promise that resolves to a ChatHistory DTO containing the answer.
+     */
     async AskQuestion(askModel: AskModel): Promise<ReturnType<typeof ChatHistoryMapper.toDTO>> {
         const geminiResponse = await this.GeminiRepository.queryFileSearch(askModel.questionText, askModel.fileSearchStoreName);
         // Save question and answer if userId is provided
@@ -25,21 +30,25 @@ export class AskQuestionService implements IAskQuestionService {
             const answer = await this.saveQuestionAndAnswer(askModel.questionText, geminiResponse.text, askModel.userId, askModel.sessionChatId, geminiResponse.sourceUrls);
             return ChatHistoryMapper.toDTO(answer);
         }
-        return {
-            id: "",
+        return ChatHistoryMapper.toDTO({
             chatHistory: geminiResponse.text,
-            sessionChat: undefined,
-            sourceUrls: geminiResponse.sourceUrls,
+            createdBy: "chatbot",
+            sources: geminiResponse.sourceUrls,
             createdAt: new Date(),
             updatedAt: new Date(),
             isDeleted: false,
-            createdBy: "chatbot",
-            updatedBy: undefined,
-            deletedAt: undefined,
-            deletedBy: undefined,
-        };
+        } as ChatHistory);
     }
 
+    /**
+     * Save question and answer to the database
+     * @param questionText 
+     * @param answerText 
+     * @param userId 
+     * @param sessionChatId 
+     * @param sourceUrls 
+     * @returns 
+     */
     private async saveQuestionAndAnswer(questionText: string, answerText: string, userId: string, sessionChatId?: string, sourceUrls?: string[]): Promise<ChatHistory> {
         let sessionChat;
         const user = await this.UserRepository.findById(userId);
@@ -60,7 +69,9 @@ export class AskQuestionService implements IAskQuestionService {
         await this.ChatHistoryRepository.save({
             chatHistory: questionText,
             createdBy: "user",
-            sessionChat: sessionChat
+            sessionChat: sessionChat,
+            createdAt: new Date(),
+            isDeleted: false
         } as ChatHistory);
 
         //Save answer
@@ -68,15 +79,25 @@ export class AskQuestionService implements IAskQuestionService {
             chatHistory: answerText,
             createdBy: "chatbot",
             sessionChat: sessionChat,
-            sources: sourceUrls
+            sources: sourceUrls,
+            createdAt: new Date(),
+            isDeleted: false
         } as ChatHistory);
     }
 
+    /**
+     * Create a new session chat
+     * @param questionText
+     * @param user
+     * @returns
+     */
     private async createSessionChat(questionText: string, user: User): Promise<SessionChat> {
         const sessionChat = await this.SessionChatRepository.save({
             sessionName: questionText.substring(0, 20),
             createdBy: user.username,
             user: user,
+            createdAt: new Date(),
+            isDeleted: false,
         } as SessionChat);
         return sessionChat;
     }

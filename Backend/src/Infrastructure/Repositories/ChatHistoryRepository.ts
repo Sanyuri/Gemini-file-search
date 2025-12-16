@@ -1,6 +1,6 @@
 import prisma from "../Database/Prisma";
 import { ChatHistory } from "../../Domain/Entities/ChatHistory";
-import { Chat } from "@google/genai";
+import { ChatHistoryMapper } from "../Mappers/ChatHistoryMapper";
 
 export class ChatHistoryRepository {
     /**
@@ -9,32 +9,11 @@ export class ChatHistoryRepository {
      * @returns 
      */
     async save(chatHistory: ChatHistory): Promise<ChatHistory> {
-        const data = {
-            chatHistory: chatHistory.chatHistory,
-            createdAt: new Date(),
-            createdBy: chatHistory.createdBy,
-            updatedAt: undefined,
-            isDeleted: false,
-            sessionChat: {
-                connect: { id: chatHistory.sessionChat?.id }
-            },
-            sourceUrls: chatHistory.sources?.join(","),
-        };
 
-        const result = await prisma.chatHistory.create({ data });
-        return {
-            id: result.id,
-            chatHistory: result.chatHistory,
-            sessionChat: chatHistory.sessionChat,
-            sources: result.sourceUrls ? result.sourceUrls.split(",") : [],
-            createdAt: result.createdAt,
-            updatedAt: result.updatedAt || undefined,
-            isDeleted: result.isDeleted,
-            createdBy: result.createdBy,
-            updatedBy: result.updatedBy || undefined,
-            deletedAt: result.deletedAt || undefined,
-            deletedBy: result.deletedBy || undefined,
-        };
+        const mappedData = ChatHistoryMapper.toDb(chatHistory);
+        const { sessionChat, ...createData } = mappedData;
+        const result = await prisma.chatHistory.create({ data: createData });
+        return ChatHistoryMapper.toDomain({ ...result, sessionChat: mappedData.sessionChat });
     }
 
     /**
@@ -49,13 +28,10 @@ export class ChatHistoryRepository {
                 isDeleted: false,
             },
             orderBy: { createdAt: 'asc' },
-            include: { sessionChat: true },
+            include: { sessionChat: { include: { user: true } } },
         });
         return results.map((result): ChatHistory => {
-            return {
-                ...result,
-                sources: result.sourceUrls ? result.sourceUrls.split(",") : [],
-            } as ChatHistory;
+            return ChatHistoryMapper.toDomain({ ...result, sessionChat: result.sessionChat});
         });
     }
 
@@ -64,25 +40,25 @@ export class ChatHistoryRepository {
      * @param question
      * @returns
      */
-    async update(chatHistory: ChatHistory): Promise<ChatHistory> {
-        const data = {
-            chatHistory: chatHistory.chatHistory,
-            updatedAt: new Date(),
-            updatedBy: chatHistory.updatedBy,
-        };
-        const result = await prisma.chatHistory.update({
-            where: { id: chatHistory.id },
-            data,
-        });
-        return result as ChatHistory;
-    }
+    async update(chatHistory: ChatHistory): Promise <ChatHistory> {
+            const data = {
+                chatHistory: chatHistory.chatHistory,
+                updatedAt: new Date(),
+                updatedBy: chatHistory.updatedBy,
+            };
+            const result = await prisma.chatHistory.update({
+                where: { id: chatHistory.id },
+                data,
+            });
+            return ChatHistoryMapper.toDomain({ ...result, sessionChat: ChatHistoryMapper.toDb(chatHistory).sessionChat });
+        }
 
     /**
      * Deletes a question by its ID.
      * @param id
      * @returns
      */
-    async delete(id: string): Promise<void> {
-        await prisma.chatHistory.delete({ where: { id } });
+    async delete (id: string): Promise < void> {
+            await prisma.chatHistory.delete({ where: { id } });
+        }
     }
-}

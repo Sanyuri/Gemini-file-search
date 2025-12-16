@@ -1,9 +1,4 @@
-export class ApiRequest<T> {
+export interface ApiRequest<T> {
     data: T;
     timestamp: Date;
-
-    constructor(data: T) {
-        this.data = data;
-        this.timestamp = new Date();
-    }
 }

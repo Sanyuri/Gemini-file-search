@@ -7,11 +7,12 @@ export class ChatHistory extends BaseEntity<string> {
 
     sources?: string[];
 
-    sessionChat?: SessionChat;
+    sessionChat: SessionChat;
 
-    constructor(chatHistory: string, createdBy: string) {
+    constructor(chatHistory: string, createdBy: string, sessionChat: SessionChat) {
         super(uuidv4(), new Date(), createdBy, false);
         this.chatHistory = chatHistory;
+        this.sessionChat = sessionChat;
     }
 
 }

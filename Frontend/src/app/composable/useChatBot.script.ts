@@ -6,7 +6,6 @@ import { ref, nextTick } from "vue";
 import router from "../router";
 import { ApiRequest } from "@/models/interfaces/apiRequest";
 import type { Answer } from "@/models/entities/asnwer";
-import type { get } from "http";
 
 const chatScreen = ref<HTMLElement | null>(null);
 
@@ -18,6 +17,7 @@ export async function useChatBot() {
         .split("; ")
         .find((row) => row.startsWith("isAuthenticated="))
         ?.split("=")[1] === "true";
+
     if (isAuthenticated) {
         await getChatHistory(messages);
     }
@@ -67,6 +67,9 @@ export function scrollToBottom() {
 
 export async function getChatHistory(messages: ReturnType<typeof ref<{ id: string; sender: string; text: string }[]>>) {
     const sessionChatId = getCurrentSessionChat();
+
+    if (!sessionChatId) return;
+    
     const data = {
         data: {
             sessionChatId: sessionChatId

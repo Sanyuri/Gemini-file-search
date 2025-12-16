@@ -4,14 +4,19 @@ import { ref } from "vue";
 
 export async function getUserSessionChats() {
     const sessionChats = ref<SessionChat[]>([])
-
-    try {
-        const response = await router.get('/users/session-chats');
-        if (response.status === 200 && response.data.data) {
-            sessionChats.value = response.data.data;
+    const isAuthenticated = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("isAuthenticated="))
+        ?.split("=")[1] === "true";
+    if (isAuthenticated) {
+        try {
+            const response = await router.get('/users/session-chats');
+            if (response.status === 200 && response.data.data) {
+                sessionChats.value = response.data.data;
+            }
+        } catch (error) {
+            console.error("Error fetching session chats:", error);
         }
-    } catch (error) {
-        console.error("Error fetching session chats:", error);
     }
     return {
         sessionChats

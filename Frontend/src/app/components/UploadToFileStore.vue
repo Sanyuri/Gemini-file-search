@@ -1,7 +1,7 @@
 <template>
     <BButton @click="modal = !modal" class="d-flex justify-content-center align-items-center"> Upload to File Store </BButton>
 
-    <BModal v-model="modal" title="Upload to File Store" no-footer>
+    <BModal v-model="modal" title="Upload to File Store" no-footer no-header-close>
         <BForm @submit="onSubmit">
             <BFormGroup label="Select Files" label-for="file-input">
                 <BFormFile v-model="files" multiple />

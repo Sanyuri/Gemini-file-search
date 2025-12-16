@@ -34,15 +34,15 @@ export function useCreateFileSearchStore() {
                         .map(cookie => cookie.replace('fileSearchStores=', ''))
                         .flatMap(cookieValue => cookieValue ? cookieValue.split(',') : [])
 
-                    existingStores.push(apiResponse.data.name)
+                    existingStores.push(apiResponse.data.id)
                     document.cookie = `fileSearchStores=${existingStores.join(',')}`
 
                     const currentFileSearchStore = getCurrentSearchStore()
                     if (!currentFileSearchStore) {
-                        document.cookie = `currentFileSearchStore=${apiResponse.data.name}; path=/`
+                        document.cookie = `currentFileSearchStore=${apiResponse.data.id}; path=/`
                     }
 
-                    alert(`File search store "${apiResponse.data.name}" has been created successfully.`)
+                    alert(`File search store "${apiResponse.data.displayName}" has been created successfully.`)
                     window.location.reload()
                 }
             }

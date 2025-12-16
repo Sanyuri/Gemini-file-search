@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./Backend
-      target: prod
+      target: production
     ports:
       - "3000:3000"
     volumes:
@@ -16,7 +16,7 @@ services:
   frontend:
     build:
       context: ./Frontend
-      target: prod
+      target: production
     ports:
       - "5173:5173"
     volumes:
