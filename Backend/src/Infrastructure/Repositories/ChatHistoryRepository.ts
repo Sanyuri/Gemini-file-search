@@ -1,7 +1,7 @@
 import prisma from "../Database/Prisma";
 import { ChatHistory } from "../../Domain/Entities/ChatHistory";
 import { ChatHistoryMapper } from "../Mappers/ChatHistoryMapper";
-import { Prisma } from "../Database/generated/prisma";
+import { Prisma } from "../../../prisma/generated/prisma";
 
 export class ChatHistoryRepository {
     /**
