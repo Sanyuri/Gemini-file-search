@@ -1,7 +1,7 @@
 import { FileSearchStore } from '../../Domain/Entities/FileSearchStore';
 import { User } from '../../Domain/Entities/User';
 import prisma from "../Database/Prisma";
-import { FileSearchStore as FileSearchStoreDb } from "../../../prisma/generated/prisma";
+import { FileSearchStore as FileSearchStoreDb } from "@prisma/client";
 import { FileSearchStoreMapper } from '../Mappers/FileSearchStoreMapper';
 export class FileSearchStoreRepository {
     /**
