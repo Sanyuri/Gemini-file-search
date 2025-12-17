@@ -33,6 +33,8 @@ COPY package*.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+RUN npx prisma generate
+
 # Build TypeScript to JavaScript
 RUN npm run build
 
@@ -53,6 +55,7 @@ RUN npm install --production
 # Copy built JS from build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/generated ./prisma/generated
 
 EXPOSE 3000
 
