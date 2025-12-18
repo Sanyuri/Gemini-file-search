@@ -2,6 +2,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createApp } from "./app";
+import { autoMigrate } from "./Infrastructure/Database/AutoMigrate";
+
+autoMigrate();
 
 const app = createApp();
 
