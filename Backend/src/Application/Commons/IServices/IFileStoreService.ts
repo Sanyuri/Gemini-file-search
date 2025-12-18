@@ -8,7 +8,7 @@ import { FileMapper } from "../Mappers/FileMapper";
 export interface IFileStoreService {
     ListStores(pageSize: number | undefined, pageToken: string | undefined): Promise<PagerResonse<FileSearchStoreMapper>>;
     GetStoreInfo(storeName: string): Promise<ReturnType<typeof FileMapper.toDTO>>;
-    CreateStore(userId: string, storeName: string): Promise<FileSearchStoreGemini>;
+    CreateStore(userId: string, storeName: string): Promise<ReturnType<typeof FileSearchStoreMapper.toDTOfromGemini>>;
     UploadFilesToStore(files: MulterFile[], storeName: string): Promise<UploadedFileRecord>;
     DeleteStore(storeName: string): Promise<void>;
     DeleteFile(fileName: string): Promise<void>;

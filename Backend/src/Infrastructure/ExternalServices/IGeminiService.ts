@@ -2,7 +2,7 @@ import { Document, FileSearchStore, Pager } from "@google/genai";
 import { GeminiResponse } from "../Models/GeminiResponse";
 
 export interface IGeminiRepository {
-    queryFileSearch(questionText: string, fileSearchStoreName: string): Promise<GeminiResponse>;
+    queryFileSearch(questionText: string, fileSearchStoreName?: string): Promise<GeminiResponse>;
 
     listStores(pageSize: number | undefined, pageToken: string | undefined): Promise<Pager<FileSearchStore>>;
     getStoreInfo(storeName: string): Promise<FileSearchStore>;

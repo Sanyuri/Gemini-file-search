@@ -4,9 +4,8 @@ import { IFileStoreService } from "../../Application/Commons/IServices/IFileStor
 import { BaseController } from "./BaseController";
 import { MulterFile } from "../../Application/Commons/Models/MulterFiles/MulterFile";
 import { ApiRequest } from "../../Application/Commons/Models/Apis/ApiRequest";
-import { FileModelRequest } from "../../Application/Commons/Models/FileSearchStores/FileModel";
-import { FileSearchStore } from "@google/genai";
 import { CreateFileStoreModel } from "../../Application/Commons/Models/FileSearchStores/CreateFileStoreModel";
+import { FileSearchStoreMapper } from "../../Application/Commons/Mappers/FileSearchStoreMapper";
 
 export class FileController extends BaseController {
     constructor(private fileStoreService: IFileStoreService) { super(); }
@@ -27,10 +26,12 @@ export class FileController extends BaseController {
 
         try {
             const fileStore = await this.fileStoreService.CreateStore(data.data.userId, data.data.storeName);
-            return this.ok<FileSearchStore>(res, fileStore, `File search store ${fileStore.name} created successfully.`);
+            return this.ok<ReturnType<typeof FileSearchStoreMapper.toDTOfromGemini>>
+                (res, fileStore, `File search store ${fileStore.displayName} created successfully.`);
         } catch (error) {
             console.error("Error in createFileSearchStore endpoint:", error);
-            return this.internalError<string>(res, `An error occurred while creating the file search store ${req.body.storeName}.`);
+            return this.internalError<string>
+                (res, `An error occurred while creating the file search store ${req.body.storeName}.`);
         }
     }
 

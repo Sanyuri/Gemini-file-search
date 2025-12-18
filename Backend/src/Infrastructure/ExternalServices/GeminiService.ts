@@ -15,7 +15,7 @@ export class GeminiRepository implements IGeminiRepository {
      * @param fileSearchStoreName - The name of the file search store to query.
      * @returns 
      */
-    async queryFileSearch(questionText: string, fileSearchStoreName: string, retries = 3): Promise<GeminiResponse> {
+    async queryFileSearch(questionText: string, fileSearchStoreName?: string, retries = 3): Promise<GeminiResponse> {
         try {
             const response = await this.ai.models.generateContent({
                 model: "gemini-2.5-flash",
@@ -23,7 +23,7 @@ export class GeminiRepository implements IGeminiRepository {
                 config: {
                     tools: [{
                         fileSearch: {
-                            fileSearchStoreNames: [`${fileSearchStoreName}`],
+                            fileSearchStoreNames: fileSearchStoreName ? [`${fileSearchStoreName}`] : undefined,
                         },
                     }],
                 },

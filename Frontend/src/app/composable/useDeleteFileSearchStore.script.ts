@@ -19,10 +19,8 @@ export function useDeleteFileSearchStore(storeId: string | undefined) {
             console.error("Failed to delete file search store:", error)
         } finally {
             loading.value = false
-            window.location.reload()
         }
     }
-
     return {
         deleteFileSearchStore,
         loading

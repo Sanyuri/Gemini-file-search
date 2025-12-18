@@ -16,7 +16,6 @@
                             @deleted="fileStores = fileStores.filter(s => s.id !== store.id)" />
                     </div>
                 </li>
-
             </ul>
         </div>
     </BModal>
@@ -27,7 +26,10 @@ import { getUserFileStores } from '../../utilities/getUserFileStores';
 import { useSelectFileSearchStore } from '../composable/useSelectFileSearchStore.script';
 import DeleteFileSearchStore from './DeleteFileSearchStore.vue';
 import FileSearchStoreDetail from './FileSearchStoreDetail.vue';
-const { fileStores } = await getUserFileStores();
+const { fileStores, load } = await getUserFileStores();
 const { modal, changeFileStore } = useSelectFileSearchStore();
 
+defineExpose({
+    reload: await load,
+});
 </script>

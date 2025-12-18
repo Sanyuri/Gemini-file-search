@@ -4,15 +4,24 @@ import type { FileSearchStore } from "@/models/entities/fileSearchStore";
 
 export async function getUserFileStores() {
     const fileStores = ref<FileSearchStore[]>([])
-    try {
-        const response = await router.get('/users/file-stores');
-        if (response.status === 200 && response.data.data) {
-            fileStores.value = response.data.data;
+    const loading = ref(false)
+    const load = async () => {
+        try {
+            loading.value = true
+            const response = await router.get('/users/file-stores');
+            if (response.status === 200 && response.data.data) {
+                fileStores.value = response.data.data;
+            }
+        } catch (error) {
+            console.error("Error fetching file search stores:", error);
+        } finally {
+            loading.value = false
         }
-    } catch (error) {
-        console.error("Error fetching file search stores:", error);
     }
+    await load()
     return {
-        fileStores
+        fileStores,
+        loading,
+        load
     }
 }

@@ -18,8 +18,8 @@ export class QAController extends BaseController {
 
         const data: ApiRequest<AskModel> = req.body;
 
-        if (!data.data.questionText || !data.data.fileSearchStoreName) {
-            return this.badRequest<ReturnType<typeof ChatHistoryMapper.toDTO>>(res, "questionText and fileSearchStoreName are required.");
+        if (!data.data.questionText) {
+            return this.badRequest<ReturnType<typeof ChatHistoryMapper.toDTO>>(res, "questionText is required.");
         }
 
         try {

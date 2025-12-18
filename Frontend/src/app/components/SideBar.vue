@@ -16,10 +16,8 @@
       <div class="flex-grow-1 overflow-auto">
         <div v-if="!collapsed">
           <nav class="d-flex flex-column">
-            <CreateFileSearchStore />
-            <div v-if="authStatus">
-              <SelectSearchStore />
-            </div>
+            <CreateFileSearchStore @storeCreated="storeCreated" />
+            <SelectSearchStore v-if="authStatus" ref="selectStoreRef" />
             <UploadToFileStore />
             <ListSessionChat />
           </nav>
@@ -84,6 +82,11 @@ const authStatus = document.cookie.split('; ').find(row => row.startsWith('isAut
 const newSessionChat = () => {
   document.cookie = `currentSessionChat=; path=/`
   window.location.reload()
+}
+
+const selectStoreRef = ref<InstanceType<typeof SelectSearchStore>>()
+function storeCreated() {
+  selectStoreRef.value?.reload()
 }
 
 </script>

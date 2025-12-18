@@ -1,7 +1,8 @@
 <template>
-  <BButton @click="modal = !modal" class="d-flex justify-content-center align-items-center"> Create File Search Store </BButton>
+  <BButton @click="modal = !modal" class="d-flex justify-content-center align-items-center"> Create File Search Store
+  </BButton>
   <BModal v-model="modal" title="Create File Search Store" no-footer no-header-close>
-    <BForm @submit="onSubmit">
+    <BForm @submit="onStoreCreated">
       <BFormGroup label="Store Name" label-for="store-name">
         <BFormInput id="store-name" v-model="storeName" required placeholder="Enter store name"></BFormInput>
       </BFormGroup>
@@ -17,4 +18,11 @@
 <script setup lang="ts">
 import { useCreateFileSearchStore } from '../composable/useCreateFileSearchStore.script';
 const { modal, storeName, onSubmit } = useCreateFileSearchStore();
+
+const emit = defineEmits(['storeCreated']);
+
+const onStoreCreated = async (e: Event) => {
+  await onSubmit(e);
+  emit('storeCreated');
+};
 </script>

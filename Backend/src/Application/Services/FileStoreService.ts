@@ -10,6 +10,7 @@ import { FileSearchStoreMapper } from "../Commons/Mappers/FileSearchStoreMapper"
 import { PagerResonse } from "../Commons/Models/Pagers/PagerResonse";
 import { FileModelResponse } from "../Commons/Models/FileSearchStores/FileModel";
 import { FileMapper } from "../Commons/Mappers/FileMapper";
+import { Return } from "@prisma/client/runtime/client";
 
 export class FileStoreService implements IFileStoreService {
     constructor(private readonly GeminiRepository: IGeminiRepository,
@@ -22,7 +23,7 @@ export class FileStoreService implements IFileStoreService {
      * @param storeName - The name of the store to create.
      * @returns An object containing the name of the created store.
      */
-    async CreateStore(userId: string, storeName: string): Promise<FileSearchStoreGemini> {
+    async CreateStore(userId: string, storeName: string): Promise<ReturnType<typeof FileSearchStoreMapper.toDTOfromGemini>> {
 
         const createdStore = await this.GeminiRepository.createStore(storeName);
         if (userId) {
@@ -33,7 +34,7 @@ export class FileStoreService implements IFileStoreService {
             await this.FileRepository.save(
                 new FileSearchStore(createdStore.name!, createdStore.displayName!, currentUser, currentUser.email, createdStore.sizeBytes));
         }
-        return createdStore;
+        return FileSearchStoreMapper.toDTOfromGemini(createdStore);
     }
 
     /**
@@ -42,14 +43,9 @@ export class FileStoreService implements IFileStoreService {
     * @param pageToken - The token for the page to retrieve.
     * @returns A promise that resolves to a Pager object containing FileSearchStore objects.
     */
-    async ListStores(pageSize: number | undefined, pageToken: string | undefined): Promise<PagerResonse<FileSearchStoreMapper>> {
+    async ListStores(pageSize: number | undefined, pageToken: string | undefined): Promise<PagerResonse<ReturnType<typeof FileSearchStoreMapper.toDTOfromGemini>>> {
         const stores = await this.GeminiRepository.listStores(pageSize, pageToken);
-        const items = stores.page.map(store => ({
-            id: store.name,
-            storeName: store.displayName,
-            createTime: store.createTime,
-            updateTime: store.updateTime,
-        }));
+        const items = stores.page.map(store => (FileSearchStoreMapper.toDTOfromGemini(store)));
         return {
             items: items,
             pagination: {

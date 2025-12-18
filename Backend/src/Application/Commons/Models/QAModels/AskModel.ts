@@ -1,6 +1,6 @@
 export interface AskModel {
     questionText: string;
-    fileSearchStoreName: string;
+    fileSearchStoreName?: string;
     sessionChatId?: string;
     userId?: string;
 }

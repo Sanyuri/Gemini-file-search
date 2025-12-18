@@ -28,22 +28,12 @@ export function useCreateFileSearchStore() {
             if (response.status === 200) {
                 const apiResponse = response.data as ApiResponse<FileSearchStoreResponse>
                 if (apiResponse.data) {
-                    const existingStores = document.cookie
-                        .split('; ')
-                        .filter(cookie => cookie.startsWith('fileSearchStores='))
-                        .map(cookie => cookie.replace('fileSearchStores=', ''))
-                        .flatMap(cookieValue => cookieValue ? cookieValue.split(',') : [])
-
-                    existingStores.push(apiResponse.data.id)
-                    document.cookie = `fileSearchStores=${existingStores.join(',')}`
-
                     const currentFileSearchStore = getCurrentSearchStore()
                     if (!currentFileSearchStore) {
                         document.cookie = `currentFileSearchStore=${apiResponse.data.id}; path=/`
                     }
 
                     alert(`File search store "${apiResponse.data.displayName}" has been created successfully.`)
-                    window.location.reload()
                 }
             }
         } catch (error) {
