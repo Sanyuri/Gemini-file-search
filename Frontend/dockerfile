@@ -23,6 +23,8 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 FROM base AS build
 ENV NODE_ENV=production
 
+RUN npm install --include=dev
+
 # Build Vue app
 RUN npm run build
 
