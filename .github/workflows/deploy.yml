@@ -22,9 +22,12 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
-            cd ${{ secrets.PROJECT_PATH }}
+          ssh -tt ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "bash -lc '
+            set -e
+            cd \"${{ secrets.PROJECT_PATH }}\"
+            pwd
+            ls -la
             git pull origin main
             docker compose -f docker-compose.server.yml down
             docker compose -f docker-compose.server.yml up -d --build
-          EOF
+          '"
